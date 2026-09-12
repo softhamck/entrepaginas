@@ -1,0 +1,86 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum RolUsuario {
+  ADMIN
+  USUARIO
+}
+
+enum TipoUsuario {
+  ESTUDIANTE
+  DOCENTE
+}
+
+enum EstadoPrestamo {
+  ACTIVO
+  DEVUELTO
+  VENCIDO
+}
+
+model Usuario {
+  id             Int         @id @default(autoincrement())
+  nombre         String
+  correo         String      @unique
+  telefono       String
+  contrasenaHash String
+  rol            RolUsuario  @default(USUARIO)
+  tipoUsuario    TipoUsuario @default(ESTUDIANTE)
+  creadoEn       DateTime    @default(now())
+  prestamos      Prestamo[]
+  reservas       Reserva[]
+}
+
+model Libro {
+  id         Int        @id @default(autoincrement())
+  titulo     String
+  autor      String
+  isbn       String     @unique
+  sinopsis   String?
+  ejemplares Ejemplar[]
+  reservas   Reserva[]
+}
+
+model Ejemplar {
+  id        Int        @id @default(autoincrement())
+  libro     Libro      @relation(fields: [libroId], references: [id])
+  libroId   Int
+  estado    String     @default("DISPONIBLE") // DISPONIBLE | PRESTADO | BAJA
+  prestamos Prestamo[]
+}
+
+model Prestamo {
+  id               Int            @id @default(autoincrement())
+  usuario          Usuario        @relation(fields: [usuarioId], references: [id])
+  usuarioId        Int
+  ejemplar         Ejemplar       @relation(fields: [ejemplarId], references: [id])
+  ejemplarId       Int
+  fechaPrestamo    DateTime       @default(now())
+  fechaVencimiento DateTime
+  fechaDevolucion  DateTime?
+  estado           EstadoPrestamo @default(ACTIVO)
+  multa            Multa?
+}
+
+model Multa {
+  id         Int      @id @default(autoincrement())
+  prestamo   Prestamo @relation(fields: [prestamoId], references: [id])
+  prestamoId Int      @unique
+  monto      Int
+  pagada     Boolean  @default(false)
+}
+
+model Reserva {
+  id             Int      @id @default(autoincrement())
+  usuario        Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId      Int
+  libro          Libro    @relation(fields: [libroId], references: [id])
+  libroId        Int
+  posicion       Int
+  fechaSolicitud DateTime @default(now())
+}

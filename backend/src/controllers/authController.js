@@ -1,4 +1,4 @@
-const { registrarUsuario } = require('../services/authService');
+const { registrarUsuario, login: loginService } = require('../services/authService');
 
 async function register(req, res) {
   const { nombre, correo, telefono, contrasena } = req.body;
@@ -21,4 +21,18 @@ async function register(req, res) {
   }
 }
 
-module.exports = { register };
+async function login(req, res) {
+  const { correo, contrasena } = req.body;
+  if (!correo || !contrasena) {
+    return res.status(400).json({ error: 'Correo y contraseña son obligatorios' });
+  }
+  try {
+    const token = await loginService({ correo, contrasena });
+    return res.json({ token });
+  } catch (err) {
+    return res.status(401).json({ error: 'Credenciales inválidas' });
+  }
+}
+
+
+module.exports = { register, login };

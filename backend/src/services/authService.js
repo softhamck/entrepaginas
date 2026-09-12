@@ -9,4 +9,17 @@ async function registrarUsuario({ nombre, correo, telefono, contrasena }) {
   return usuarioRepository.crear({ nombre, correo, telefono, contrasenaHash });
 }
 
-module.exports = { registrarUsuario };
+const jwt = require('jsonwebtoken');
+
+async function login({ correo, contrasena }) {
+  const usuario = await usuarioRepository.buscarPorCorreo(correo);
+  if (!usuario) throw new Error('CREDENCIALES_INVALIDAS');
+
+  const valido = await bcrypt.compare(contrasena, usuario.contrasenaHash);
+  if (!valido) throw new Error('CREDENCIALES_INVALIDAS');
+
+  return jwt.sign({ id: usuario.id, rol: usuario.rol }, process.env.JWT_SECRET, { expiresIn: '2h' });
+}
+
+
+module.exports = { registrarUsuario, login };

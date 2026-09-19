@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { register } from '../services/authService';
-import './RegisterPage.css';
+import './auth.css';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({ nombre: '', correo: '', telefono: '', contrasena: '' });

@@ -12,6 +12,7 @@
   display: flex;
   width: 100%;
   max-width: 900px;
+  min-height: 600px;
   background: #f4f1ea;
   border: 1px solid #e2ddcb;
   border-radius: 24px;
@@ -77,6 +78,62 @@
   height: 8px;
   border-radius: 50%;
   background: #43a5d0;
+}
+
+.login-brand-panel {
+  flex: 1;
+  background: #003370;
+  color: #fff;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.login-logo {
+  font-family: 'Caprasimo', cursive;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.login-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 24px;
+}
+
+.login-tagline {
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+}
+
+.login-brand-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.login-brand-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #43a5d0;
+  flex-shrink: 0;
+}
+
+.login-form-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .login-brand-panel { padding: 24px; }
 }
 
 @media (max-width: 640px) {

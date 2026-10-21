@@ -1,7 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Un libro se identifica por su título + autor (puede tener varios ejemplares).
 function buscarLibroPorTituloAutor(titulo, autor) {
   return prisma.libro.findFirst({ where: { titulo, autor } });
 }
@@ -10,7 +9,6 @@ function crearLibro({ titulo, autor, signatura, categoria, descripcion }) {
   return prisma.libro.create({ data: { titulo, autor, signatura, categoria, descripcion } });
 }
 
-// El código es único por ejemplar (es la llave real del inventario de Comfama).
 function buscarEjemplarPorCodigo(codigo) {
   return prisma.ejemplar.findUnique({ where: { codigo } });
 }
@@ -19,9 +17,33 @@ function crearEjemplar({ libroId, codigo, costo }) {
   return prisma.ejemplar.create({ data: { libroId, codigo, costo } });
 }
 
+// Búsqueda y filtros del catálogo (HU-08).
+function buscarLibros({ q, categoria, soloDisponibles } = {}) {
+  const condiciones = [];
+  if (q) {
+    condiciones.push({
+      OR: [
+        { titulo: { contains: q, mode: 'insensitive' } },
+        { autor: { contains: q, mode: 'insensitive' } },
+        { signatura: { contains: q, mode: 'insensitive' } },
+        { ejemplares: { some: { codigo: { contains: q, mode: 'insensitive' } } } },
+      ],
+    });
+  }
+  if (categoria) condiciones.push({ categoria: { equals: categoria, mode: 'insensitive' } });
+  if (soloDisponibles) condiciones.push({ ejemplares: { some: { estado: 'DISPONIBLE' } } });
+
+  return prisma.libro.findMany({
+    where: condiciones.length ? { AND: condiciones } : {},
+    include: { ejemplares: true },
+    orderBy: { titulo: 'asc' },
+  });
+}
+
 module.exports = {
   buscarLibroPorTituloAutor,
   crearLibro,
   buscarEjemplarPorCodigo,
   crearEjemplar,
+  buscarLibros,
 };

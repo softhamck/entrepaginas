@@ -8,8 +8,6 @@ function normalizar(texto) {
     .trim().toLowerCase();
 }
 
-// Mapa de encabezado del archivo -> campo interno. Las columnas de préstamo
-// (biblioteca, cédula, nombre, correo, meses...) no están aquí y se ignoran.
 const COLUMNAS = {
   titulo: 'titulo',
   signatura: 'signatura',
@@ -20,7 +18,6 @@ const COLUMNAS = {
   categoria: 'categoria',
 };
 
-// Convierte una fila cruda del Excel en un objeto con nuestros campos.
 function mapearFila(filaCruda) {
   const fila = {};
   for (const clave of Object.keys(filaCruda)) {
@@ -38,32 +35,29 @@ function parsearCosto(valor) {
 }
 
 /**
- * Importa el inventario.
+ * Importa el inventario (HU-06).
  * @param {Array<Object>} filasCrudas  filas tal como vienen del Excel/CSV
  * @param {Object} opciones  { duplicados: 'sumar' | 'omitir' }  (para libros ya existentes)
- * @returns {Object} reporte de la carga
  */
 async function importarInventario(filasCrudas, opciones = {}) {
   const modoLibroExistente = opciones.duplicados === 'omitir' ? 'omitir' : 'sumar';
 
   const reporte = { agregados: 0, librosNuevos: 0, omitidos: [], total: filasCrudas.length };
-  const codigosVistos = new Set(); // detecta duplicados dentro del mismo archivo
-  const cacheLibros = new Map();   // "titulo||autor" -> libroId (creados en esta carga)
+  const codigosVistos = new Set();
+  const cacheLibros = new Map();
 
   for (let i = 0; i < filasCrudas.length; i++) {
-    const numeroFila = i + 2; // +2: fila 1 es el encabezado
+    const numeroFila = i + 2;
     const fila = mapearFila(filasCrudas[i]);
     const titulo = String(fila.titulo ?? '').trim();
     const autor = String(fila.autor ?? '').trim();
     const codigo = String(fila.codigo ?? '').trim();
 
-    // Validación: Título y Código son obligatorios.
     if (!titulo || !codigo) {
       reporte.omitidos.push({ fila: numeroFila, motivo: 'Título o Código vacío' });
       continue;
     }
 
-    // Código duplicado (en el archivo o ya en la base): no se duplica.
     const yaEnArchivo = codigosVistos.has(codigo);
     const yaEnBase = yaEnArchivo ? true : Boolean(await libroRepository.buscarEjemplarPorCodigo(codigo));
     if (yaEnArchivo || yaEnBase) {
@@ -72,7 +66,6 @@ async function importarInventario(filasCrudas, opciones = {}) {
     }
     codigosVistos.add(codigo);
 
-    // Ubica o crea el libro (agrupando por Título + Autor).
     const clave = `${titulo}||${autor}`;
     let libroId = cacheLibros.get(clave);
     let libroYaExistia = false;
@@ -95,7 +88,6 @@ async function importarInventario(filasCrudas, opciones = {}) {
       cacheLibros.set(clave, libroId);
     }
 
-    // Si el libro ya existía y el admin eligió "omitir", no se agrega el ejemplar.
     if (libroYaExistia && modoLibroExistente === 'omitir') {
       reporte.omitidos.push({ fila: numeroFila, codigo, motivo: 'El libro ya existía y se conservó como estaba' });
       continue;
@@ -108,4 +100,28 @@ async function importarInventario(filasCrudas, opciones = {}) {
   return reporte;
 }
 
-module.exports = { importarInventario, parsearCosto, mapearFila };
+/**
+ * Catálogo (HU-08): búsqueda, filtros y disponibilidad.
+ * Devuelve la lista de libros con su disponibilidad. NO expone el costo
+ * (es información interna del administrador).
+ */
+async function listarCatalogo({ q, categoria, soloDisponibles } = {}) {
+  const libros = await libroRepository.buscarLibros({ q, categoria, soloDisponibles });
+  return libros.map((libro) => {
+    const ejemplares = libro.ejemplares ?? [];
+    const disponibles = ejemplares.filter((e) => e.estado === 'DISPONIBLE').length;
+    return {
+      id: libro.id,
+      titulo: libro.titulo,
+      autor: libro.autor,
+      signatura: libro.signatura,
+      categoria: libro.categoria,
+      descripcion: libro.descripcion,
+      ejemplares: ejemplares.length,
+      disponibles,
+      disponible: disponibles > 0,
+    };
+  });
+}
+
+module.exports = { importarInventario, parsearCosto, mapearFila, listarCatalogo };

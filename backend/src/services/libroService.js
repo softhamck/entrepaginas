@@ -124,4 +124,23 @@ async function listarCatalogo({ q, categoria, soloDisponibles } = {}) {
   });
 }
 
-module.exports = { importarInventario, parsearCosto, mapearFila, listarCatalogo };
+// Detalle (HU-09): devuelve null si el libro no existe. No expone el costo.
+async function obtenerDetalle(id) {
+  const libro = await libroRepository.buscarLibroPorId(id);
+  if (!libro) return null;
+  const ejemplares = libro.ejemplares ?? [];
+  const disponibles = ejemplares.filter((e) => e.estado === 'DISPONIBLE').length;
+  return {
+    id: libro.id,
+    titulo: libro.titulo,
+    autor: libro.autor,
+    signatura: libro.signatura,
+    categoria: libro.categoria,
+    descripcion: libro.descripcion,
+    ejemplares: ejemplares.length,
+    disponibles,
+    disponible: disponibles > 0,
+  };
+}
+
+module.exports = { importarInventario, parsearCosto, mapearFila, listarCatalogo, obtenerDetalle };

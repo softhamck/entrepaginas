@@ -1,5 +1,5 @@
 const XLSX = require('xlsx');
-const { importarInventario, listarCatalogo } = require('../services/libroService');
+const { importarInventario, listarCatalogo, obtenerDetalle } = require('../services/libroService');
 
 const EXTENSIONES_VALIDAS = ['.xlsx', '.csv'];
 
@@ -38,4 +38,21 @@ async function listar(req, res) {
   }
 }
 
-module.exports = { importar, listar };
+// Detalle (HU-09): GET /api/libros/:id
+async function detalle(req, res) {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    return res.status(400).json({ error: 'Identificador de libro inválido' });
+  }
+  try {
+    const libro = await obtenerDetalle(id);
+    if (!libro) {
+      return res.status(404).json({ error: 'Libro no encontrado' });
+    }
+    return res.json(libro);
+  } catch (err) {
+    return res.status(500).json({ error: 'No se pudo consultar el libro' });
+  }
+}
+
+module.exports = { importar, listar, detalle };

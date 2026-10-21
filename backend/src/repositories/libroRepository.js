@@ -40,10 +40,16 @@ function buscarLibros({ q, categoria, soloDisponibles } = {}) {
   });
 }
 
+// Detalle de un libro por id, con sus ejemplares (HU-09).
+function buscarLibroPorId(id) {
+  return prisma.libro.findUnique({ where: { id }, include: { ejemplares: true } });
+}
+
 module.exports = {
   buscarLibroPorTituloAutor,
   crearLibro,
   buscarEjemplarPorCodigo,
   crearEjemplar,
   buscarLibros,
+  buscarLibroPorId,
 };

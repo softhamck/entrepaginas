@@ -37,19 +37,22 @@ model Usuario {
 }
 
 model Libro {
-  id         Int        @id @default(autoincrement())
-  titulo     String
-  autor      String
-  isbn       String     @unique
-  sinopsis   String?
-  ejemplares Ejemplar[]
-  reservas   Reserva[]
+  id          Int        @id @default(autoincrement())
+  titulo      String
+  autor       String
+  signatura   String?
+  categoria   String?
+  descripcion String?
+  ejemplares  Ejemplar[]
+  reservas    Reserva[]
 }
 
 model Ejemplar {
   id        Int        @id @default(autoincrement())
   libro     Libro      @relation(fields: [libroId], references: [id])
   libroId   Int
+  codigo    String     @unique
+  costo     Int?
   estado    String     @default("DISPONIBLE") // DISPONIBLE | PRESTADO | BAJA
   prestamos Prestamo[]
 }

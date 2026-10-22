@@ -26,7 +26,26 @@ export default function RegisterPage() {
     return (
       <div className="auth-page">
         <div className="auth-card">
-          <p>Cuenta creada. Ya puedes iniciar sesión.</p>
+          <div className="login-brand-panel">
+            <div>
+              <div className="login-logo">entrepáginas</div>
+              <p className="login-eyebrow">BIBLIOTECA DE FECORH</p>
+              <p className="login-tagline">Tu cuenta quedó lista. Inicia sesión para explorar el catálogo.</p>
+            </div>
+            <div className="login-brand-footer">
+              <span className="login-brand-dot" />
+              Fondo de Empleados de Coninsa S.A.S.
+            </div>
+          </div>
+          <div className="auth-form-panel">
+            <div className="auth-logo">entrepáginas</div>
+            <h1>¡Cuenta creada!</h1>
+            <p className="auth-subtext">
+              Ya puedes iniciar sesión con tu correo y tu contraseña, con rol
+              <strong className="auth-highlight"> Usuario</strong>.
+            </p>
+            <a href="/login" className="auth-button auth-button-link">Iniciar sesión</a>
+          </div>
         </div>
       </div>
     );

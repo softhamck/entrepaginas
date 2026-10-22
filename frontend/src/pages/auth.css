@@ -147,3 +147,6 @@
   .auth-form-panel { padding: 32px 24px; }
   .auth-rules-panel { padding: 24px; }
 }
+
+.auth-button-link { display: inline-block; text-align: center; text-decoration: none; }
+  

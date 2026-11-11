@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const libroRoutes = require('./routes/libroRoutes');
 const prestamoRoutes = require('./routes/prestamoRoutes');
+const usuarioRoutes = require('./routes/usuarioRoutes');
 
 const app = express();
 app.use(cors());
@@ -15,6 +16,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/libros', libroRoutes);
 app.use('/api/prestamos', prestamoRoutes);
+app.use('/api/usuarios', usuarioRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

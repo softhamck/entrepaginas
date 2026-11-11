@@ -66,6 +66,15 @@ function renovarPrestamo({ prestamoId, nuevaFecha }) {
   });
 }
 
+// Todos los préstamos del usuario, con libro y multa, para el historial (HU-14).
+function buscarPrestamosPorUsuario(usuarioId) {
+  return prisma.prestamo.findMany({
+    where: { usuarioId },
+    include: { ejemplar: { include: { libro: true } }, multa: true },
+    orderBy: { fechaPrestamo: 'desc' },
+  });
+}
+
 module.exports = {
   buscarLibroPorId,
   buscarEjemplarDisponiblePorLibro,
@@ -76,4 +85,5 @@ module.exports = {
   registrarDevolucion,
   primeraReservaDelLibro,
   renovarPrestamo,
+  buscarPrestamosPorUsuario,
 };

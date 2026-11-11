@@ -1,4 +1,4 @@
-const { solicitarPrestamo, ReglaNegocioError } = require('../services/prestamoService');
+const { solicitarPrestamo, devolverPrestamo, ReglaNegocioError } = require('../services/prestamoService');
 
 // HU-11: POST /api/prestamos  { libroId }
 async function solicitar(req, res) {
@@ -17,4 +17,21 @@ async function solicitar(req, res) {
   }
 }
 
-module.exports = { solicitar };
+// HU-12: PATCH /api/prestamos/:id/devolver
+async function devolver(req, res) {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    return res.status(400).json({ error: 'Identificador de préstamo inválido' });
+  }
+  try {
+    const resultado = await devolverPrestamo({ prestamoId: id });
+    return res.json(resultado);
+  } catch (err) {
+    if (err instanceof ReglaNegocioError) {
+      return res.status(err.codigo).json({ error: err.message });
+    }
+    return res.status(500).json({ error: 'No se pudo registrar la devolución' });
+  }
+}
+
+module.exports = { solicitar, devolver };

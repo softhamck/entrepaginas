@@ -32,10 +32,39 @@ function crearPrestamo({ usuarioId, ejemplarId, fechaVencimiento }) {
   });
 }
 
+// Préstamo por id, con su ejemplar (para devolución HU-12).
+function buscarPrestamoPorId(id) {
+  return prisma.prestamo.findUnique({ where: { id }, include: { ejemplar: true } });
+}
+
+// Registra la devolución en una transacción: cierra el préstamo, libera el
+// ejemplar y, si hubo atraso, crea la multa (HU-12 + HU-15).
+function registrarDevolucion({ prestamoId, ejemplarId, fechaDevolucion, multa }) {
+  return prisma.$transaction(async (tx) => {
+    const prestamo = await tx.prestamo.update({
+      where: { id: prestamoId },
+      data: { estado: 'DEVUELTO', fechaDevolucion },
+    });
+    await tx.ejemplar.update({ where: { id: ejemplarId }, data: { estado: 'DISPONIBLE' } });
+    if (multa) {
+      await tx.multa.create({ data: { prestamoId, monto: multa.monto } });
+    }
+    return prestamo;
+  });
+}
+
+// Primera reserva (menor posición) del libro; null si no hay cola (HU-12 esc. 3).
+function primeraReservaDelLibro(libroId) {
+  return prisma.reserva.findFirst({ where: { libroId }, orderBy: { posicion: 'asc' } });
+}
+
 module.exports = {
   buscarLibroPorId,
   buscarEjemplarDisponiblePorLibro,
   contarPrestamosActivos,
   tieneMultaPendiente,
   crearPrestamo,
+  buscarPrestamoPorId,
+  registrarDevolucion,
+  primeraReservaDelLibro,
 };

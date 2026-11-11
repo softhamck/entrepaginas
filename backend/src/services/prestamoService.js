@@ -4,6 +4,7 @@ const prestamoRepository = require('../repositories/prestamoRepository');
 const PLAZO_DIAS = 14;              // vencimiento a 14 días
 const MAX_PRESTAMOS_ACTIVOS = 3;    // máximo de préstamos activos por usuario
 const TARIFA_MULTA_DIARIA = 1000;   // COP por día de atraso (CONFIRMAR con el equipo)
+const UMBRAL_POR_VENCER = 3;        // días para marcar un préstamo "por vencer"
 
 // Error de regla de negocio: lleva el código HTTP que debe devolver el controlador.
 class ReglaNegocioError extends Error {
@@ -119,10 +120,43 @@ async function renovarPrestamo({ prestamoId, usuarioId }) {
   return prestamoRepository.renovarPrestamo({ prestamoId, nuevaFecha });
 }
 
+/**
+ * Historial de préstamos del usuario (HU-14).
+ * Clasifica cada préstamo (ACTIVO / VENCIDO / DEVUELTO), calcula los días
+ * restantes, marca los que están por vencer y expone la multa si la hay.
+ */
+async function obtenerHistorial(usuarioId) {
+  const prestamos = await prestamoRepository.buscarPrestamosPorUsuario(usuarioId);
+  const hoy = new Date().setHours(0, 0, 0, 0);
+
+  return prestamos.map((p) => {
+    const venc = new Date(p.fechaVencimiento).setHours(0, 0, 0, 0);
+    let estado;
+    if (p.estado === 'DEVUELTO') estado = 'DEVUELTO';
+    else estado = venc < hoy ? 'VENCIDO' : 'ACTIVO';
+
+    const diasRestantes = estado === 'DEVUELTO' ? null : Math.round((venc - hoy) / 86400000);
+    const porVencer = estado === 'ACTIVO' && diasRestantes <= UMBRAL_POR_VENCER;
+
+    return {
+      id: p.id,
+      libro: { titulo: p.ejemplar.libro.titulo, autor: p.ejemplar.libro.autor },
+      fechaPrestamo: p.fechaPrestamo,
+      fechaVencimiento: p.fechaVencimiento,
+      fechaDevolucion: p.fechaDevolucion,
+      estado,
+      diasRestantes,
+      porVencer,
+      multa: p.multa ? { monto: p.multa.monto, pagada: p.multa.pagada } : null,
+    };
+  });
+}
+
 module.exports = {
   solicitarPrestamo,
   devolverPrestamo,
   renovarPrestamo,
+  obtenerHistorial,
   ReglaNegocioError,
   PLAZO_DIAS,
   MAX_PRESTAMOS_ACTIVOS,

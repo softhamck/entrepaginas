@@ -45,6 +45,31 @@ function buscarLibroPorId(id) {
   return prisma.libro.findUnique({ where: { id }, include: { ejemplares: true } });
 }
 
+// Actualiza los datos de un libro (HU-10 editar).
+function actualizarLibro(id, datos) {
+  return prisma.libro.update({ where: { id }, data: datos });
+}
+
+// Un ejemplar por id (para dar de baja, HU-10).
+function buscarEjemplarPorId(id) {
+  return prisma.ejemplar.findUnique({ where: { id } });
+}
+
+// Cuántos préstamos (historial) tiene el ejemplar: decide baja lógica vs borrado.
+function contarPrestamosDeEjemplar(ejemplarId) {
+  return prisma.prestamo.count({ where: { ejemplarId } });
+}
+
+// Baja lógica: el ejemplar deja de circular pero se conserva (estado BAJA).
+function darDeBajaEjemplar(id) {
+  return prisma.ejemplar.update({ where: { id }, data: { estado: 'BAJA' } });
+}
+
+// Eliminación física: solo para ejemplares sin historial de préstamos.
+function eliminarEjemplar(id) {
+  return prisma.ejemplar.delete({ where: { id } });
+}
+
 module.exports = {
   buscarLibroPorTituloAutor,
   crearLibro,
@@ -52,4 +77,9 @@ module.exports = {
   crearEjemplar,
   buscarLibros,
   buscarLibroPorId,
+  actualizarLibro,
+  buscarEjemplarPorId,
+  contarPrestamosDeEjemplar,
+  darDeBajaEjemplar,
+  eliminarEjemplar,
 };

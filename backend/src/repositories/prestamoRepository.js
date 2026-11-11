@@ -58,6 +58,14 @@ function primeraReservaDelLibro(libroId) {
   return prisma.reserva.findFirst({ where: { libroId }, orderBy: { posicion: 'asc' } });
 }
 
+// Renueva el préstamo: nueva fecha de vencimiento y suma 1 a renovaciones (HU-13).
+function renovarPrestamo({ prestamoId, nuevaFecha }) {
+  return prisma.prestamo.update({
+    where: { id: prestamoId },
+    data: { fechaVencimiento: nuevaFecha, renovaciones: { increment: 1 } },
+  });
+}
+
 module.exports = {
   buscarLibroPorId,
   buscarEjemplarDisponiblePorLibro,
@@ -67,4 +75,5 @@ module.exports = {
   buscarPrestamoPorId,
   registrarDevolucion,
   primeraReservaDelLibro,
+  renovarPrestamo,
 };

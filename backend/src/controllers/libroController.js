@@ -1,5 +1,6 @@
 const XLSX = require('xlsx');
-const { importarInventario, listarCatalogo, obtenerDetalle } = require('../services/libroService');
+const { importarInventario, listarCatalogo, obtenerDetalle, actualizarLibro } = require('../services/libroService');
+const { ReglaNegocioError } = require('../services/prestamoService');
 
 const EXTENSIONES_VALIDAS = ['.xlsx', '.csv'];
 
@@ -55,4 +56,21 @@ async function detalle(req, res) {
   }
 }
 
-module.exports = { importar, listar, detalle };
+// Editar un libro (HU-10): PATCH /api/libros/:id
+async function actualizar(req, res) {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    return res.status(400).json({ error: 'Identificador de libro inválido' });
+  }
+  try {
+    const libro = await actualizarLibro(id, req.body);
+    return res.json({ mensaje: 'Cambios guardados', libro });
+  } catch (err) {
+    if (err instanceof ReglaNegocioError) {
+      return res.status(err.codigo).json({ error: err.message });
+    }
+    return res.status(500).json({ error: 'No se pudo actualizar el libro' });
+  }
+}
+
+module.exports = { importar, listar, detalle, actualizar };

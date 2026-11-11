@@ -1,4 +1,5 @@
 const libroRepository = require('../repositories/libroRepository');
+const { ReglaNegocioError } = require('./prestamoService');
 
 // Quita acentos, pasa a minúscula y recorta: sirve para reconocer los
 // encabezados del archivo sin importar mayúsculas o tildes.
@@ -143,4 +144,56 @@ async function obtenerDetalle(id) {
   };
 }
 
-module.exports = { importarInventario, parsearCosto, mapearFila, listarCatalogo, obtenerDetalle };
+const CAMPOS_EDITABLES = ['titulo', 'autor', 'categoria', 'signatura', 'descripcion'];
+
+/**
+ * Editar un libro (HU-10 esc. 1). Solo campos permitidos; título y autor
+ * no pueden quedar vacíos.
+ */
+async function actualizarLibro(id, datos) {
+  const libro = await libroRepository.buscarLibroPorId(id);
+  if (!libro) throw new ReglaNegocioError('Libro no encontrado', 404);
+
+  const cambios = {};
+  for (const campo of CAMPOS_EDITABLES) {
+    if (datos[campo] !== undefined) {
+      const valor = String(datos[campo]).trim();
+      cambios[campo] = valor === '' ? null : valor;
+    }
+  }
+  if ('titulo' in cambios && !cambios.titulo) throw new ReglaNegocioError('El título es obligatorio');
+  if ('autor' in cambios && !cambios.autor) throw new ReglaNegocioError('El autor es obligatorio');
+
+  return libroRepository.actualizarLibro(id, cambios);
+}
+
+/**
+ * Dar de baja un ejemplar (HU-10 esc. 2 y 3).
+ * - PRESTADO: no se puede (primero la devolución).
+ * - Ya en BAJA: no repite.
+ * - Con historial de préstamos: baja lógica (conserva trazabilidad).
+ * - Sin historial: eliminación física (nunca circuló).
+ */
+async function darDeBajaEjemplar(id) {
+  const ejemplar = await libroRepository.buscarEjemplarPorId(id);
+  if (!ejemplar) throw new ReglaNegocioError('Ejemplar no encontrado', 404);
+  if (ejemplar.estado === 'PRESTADO') {
+    throw new ReglaNegocioError('No se puede dar de baja un ejemplar prestado. Primero registra la devolución.');
+  }
+  if (ejemplar.estado === 'BAJA') {
+    throw new ReglaNegocioError('El ejemplar ya está dado de baja.');
+  }
+
+  const historial = await libroRepository.contarPrestamosDeEjemplar(id);
+  if (historial > 0) {
+    await libroRepository.darDeBajaEjemplar(id);
+    return { id, accion: 'BAJA_LOGICA', mensaje: 'Ejemplar dado de baja (conserva su historial).' };
+  }
+  await libroRepository.eliminarEjemplar(id);
+  return { id, accion: 'ELIMINADO', mensaje: 'Ejemplar eliminado (no tenía historial de préstamos).' };
+}
+
+module.exports = {
+  importarInventario, parsearCosto, mapearFila, listarCatalogo, obtenerDetalle,
+  actualizarLibro, darDeBajaEjemplar,
+};

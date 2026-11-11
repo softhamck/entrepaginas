@@ -67,6 +67,7 @@ model Prestamo {
   fechaVencimiento DateTime
   fechaDevolucion  DateTime?
   estado           EstadoPrestamo @default(ACTIVO)
+  renovaciones     Int            @default(0)
   multa            Multa?
 }
 

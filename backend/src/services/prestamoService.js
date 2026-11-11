@@ -86,9 +86,43 @@ async function devolverPrestamo({ prestamoId }) {
   return { ...actualizado, diasAtraso: atraso, multa, siguienteEnCola: siguienteEnCola || null };
 }
 
+/**
+ * Renovar préstamo (HU-13).
+ * Solo si es del usuario, está ACTIVO, no vencido, sin multa, sin renovación
+ * previa y sin cola de espera; extiende el vencimiento 14 días más.
+ */
+async function renovarPrestamo({ prestamoId, usuarioId }) {
+  const prestamo = await prestamoRepository.buscarPrestamoPorId(prestamoId);
+  if (!prestamo || prestamo.usuarioId !== usuarioId) {
+    throw new ReglaNegocioError('Préstamo no encontrado.', 404);
+  }
+  if (prestamo.estado !== 'ACTIVO') {
+    throw new ReglaNegocioError('Solo se pueden renovar préstamos activos.');
+  }
+  // Esc. 2: vencido.
+  if (new Date(prestamo.fechaVencimiento).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0)) {
+    throw new ReglaNegocioError('El préstamo está vencido. Debes devolver el libro y pagar la multa si aplica.');
+  }
+  // Sin multa pendiente.
+  if (await prestamoRepository.tieneMultaPendiente(usuarioId)) {
+    throw new ReglaNegocioError('Tienes una multa pendiente. Consulta el valor para continuar.');
+  }
+  // Esc. 3: solo una renovación.
+  if (prestamo.renovaciones >= 1) {
+    throw new ReglaNegocioError('Este préstamo solo se puede renovar una vez.');
+  }
+  // Esc. 4: no renovar si otro usuario espera el libro.
+  if (await prestamoRepository.primeraReservaDelLibro(prestamo.ejemplar.libroId)) {
+    throw new ReglaNegocioError('No se puede renovar: hay reservas pendientes de este libro.');
+  }
+  const nuevaFecha = sumarDias(prestamo.fechaVencimiento, PLAZO_DIAS);
+  return prestamoRepository.renovarPrestamo({ prestamoId, nuevaFecha });
+}
+
 module.exports = {
   solicitarPrestamo,
   devolverPrestamo,
+  renovarPrestamo,
   ReglaNegocioError,
   PLAZO_DIAS,
   MAX_PRESTAMOS_ACTIVOS,

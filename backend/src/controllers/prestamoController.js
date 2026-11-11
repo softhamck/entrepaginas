@@ -1,4 +1,4 @@
-const { solicitarPrestamo, devolverPrestamo, ReglaNegocioError } = require('../services/prestamoService');
+const { solicitarPrestamo, devolverPrestamo, renovarPrestamo, ReglaNegocioError } = require('../services/prestamoService');
 
 // HU-11: POST /api/prestamos  { libroId }
 async function solicitar(req, res) {
@@ -34,4 +34,21 @@ async function devolver(req, res) {
   }
 }
 
-module.exports = { solicitar, devolver };
+// HU-13: PATCH /api/prestamos/:id/renovar
+async function renovar(req, res) {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    return res.status(400).json({ error: 'Identificador de préstamo inválido' });
+  }
+  try {
+    const prestamo = await renovarPrestamo({ prestamoId: id, usuarioId: req.usuario.id });
+    return res.json(prestamo);
+  } catch (err) {
+    if (err instanceof ReglaNegocioError) {
+      return res.status(err.codigo).json({ error: err.message });
+    }
+    return res.status(500).json({ error: 'No se pudo renovar el préstamo' });
+  }
+}
+
+module.exports = { solicitar, devolver, renovar };

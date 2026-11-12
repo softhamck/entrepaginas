@@ -11,4 +11,13 @@ function crear({ nombre, correo, telefono, contrasenaHash }) {
   });
 }
 
-module.exports = { buscarPorCorreo, crear };
+function buscarPorId(id) {
+  return prisma.usuario.findUnique({ where: { id } });
+}
+
+// SC-001: activa o revoca el consentimiento de recomendaciones.
+function actualizarConsentimiento(id, consentimiento) {
+  return prisma.usuario.update({ where: { id }, data: { consentimiento } });
+}
+
+module.exports = { buscarPorCorreo, crear, buscarPorId, actualizarConsentimiento };

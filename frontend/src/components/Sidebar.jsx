@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 
 const NAV_ASOCIADO = [
   { label: 'Catálogo', to: '/catalogo' },
-  { label: 'Mis préstamos', to: '/proximamente/mis-prestamos' },
+  { label: 'Mis préstamos', to: '/mis-prestamos' },
   { label: 'Mi perfil', to: '/proximamente/mi-perfil' },
 ];
 
@@ -45,6 +45,4 @@ export default function Sidebar({ abierto = false, cerrar = () => {} }) {
     </aside>
   );
 }
-
-
 

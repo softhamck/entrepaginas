@@ -10,6 +10,7 @@ const usuarioRoutes = require('./routes/usuarioRoutes');
 const multaRoutes = require('./routes/multaRoutes');
 const reservaRoutes = require('./routes/reservaRoutes');
 const ejemplarRoutes = require('./routes/ejemplarRoutes');
+const recomendacionRoutes = require('./routes/recomendacionRoutes');
 
 const app = express();
 app.use(cors());
@@ -23,6 +24,7 @@ app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/multas', multaRoutes);
 app.use('/api/reservas', reservaRoutes);
 app.use('/api/ejemplares', ejemplarRoutes);
+app.use('/api/recomendaciones', recomendacionRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

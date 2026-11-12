@@ -17,3 +17,9 @@ export async function solicitarPrestamo(libroId) {
   return data;
 }
 
+// Historial de préstamos del usuario (HU-14).
+export async function obtenerHistorial(usuarioId) {
+  const res = await fetch(`${API_URL}/usuarios/${usuarioId}/prestamos`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('No se pudo cargar el historial de préstamos');
+  return res.json();
+}

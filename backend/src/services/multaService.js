@@ -30,4 +30,14 @@ async function pagarMulta(id) {
   return { id, pagada: true, bloqueoLevantado: !quedaPendiente };
 }
 
-module.exports = { listarMultas, pagarMulta };
+/**
+ * Estado de bloqueo de un usuario (HU-17).
+ * Un usuario está bloqueado para préstamos y reservas mientras tenga al menos
+ * una multa pendiente. La consulta del catálogo nunca se bloquea.
+ */
+async function estadoBloqueo(usuarioId) {
+  const multasPendientes = await multaRepository.contarPendientesPorUsuario(usuarioId);
+  return { bloqueado: multasPendientes > 0, multasPendientes };
+}
+
+module.exports = { listarMultas, pagarMulta, estadoBloqueo };

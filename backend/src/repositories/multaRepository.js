@@ -29,4 +29,9 @@ function marcarPagada(id) {
   return prisma.multa.update({ where: { id }, data: { pagada: true } });
 }
 
-module.exports = { listarMultas, buscarMultaPorId, marcarPagada };
+// Cuántas multas pendientes tiene un usuario (para el estado de bloqueo, HU-17).
+function contarPendientesPorUsuario(usuarioId) {
+  return prisma.multa.count({ where: { pagada: false, prestamo: { usuarioId } } });
+}
+
+module.exports = { listarMultas, buscarMultaPorId, marcarPagada, contarPendientesPorUsuario };

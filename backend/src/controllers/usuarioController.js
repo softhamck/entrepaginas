@@ -1,5 +1,6 @@
 const { obtenerHistorial } = require('../services/prestamoService');
 const { actualizarConsentimiento } = require('../services/recomendacionService');
+const { estadoBloqueo } = require('../services/multaService');
 
 // HU-14: GET /api/usuarios/:id/prestamos
 async function historialPrestamos(req, res) {
@@ -39,4 +40,21 @@ async function cambiarConsentimiento(req, res) {
   }
 }
 
-module.exports = { historialPrestamos, cambiarConsentimiento };
+// HU-17: GET /api/usuarios/:id/bloqueo
+async function bloqueo(req, res) {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    return res.status(400).json({ error: 'Identificador de usuario inválido' });
+  }
+  if (req.usuario.rol !== 'ADMIN' && req.usuario.id !== id) {
+    return res.status(403).json({ error: 'No puedes consultar el bloqueo de otro usuario' });
+  }
+  try {
+    const estado = await estadoBloqueo(id);
+    return res.json(estado);
+  } catch (err) {
+    return res.status(500).json({ error: 'No se pudo consultar el estado de bloqueo' });
+  }
+}
+
+module.exports = { historialPrestamos, cambiarConsentimiento, bloqueo };

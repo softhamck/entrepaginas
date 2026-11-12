@@ -31,6 +31,7 @@ model Usuario {
   contrasenaHash String
   rol            RolUsuario  @default(USUARIO)
   tipoUsuario    TipoUsuario @default(ESTUDIANTE)
+  consentimiento Boolean     @default(false)
   creadoEn       DateTime    @default(now())
   prestamos      Prestamo[]
   reservas       Reserva[]

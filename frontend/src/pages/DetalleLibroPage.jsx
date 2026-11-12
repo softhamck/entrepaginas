@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { obtenerDetalle } from '../services/libroService';
+import { solicitarPrestamo } from '../services/prestamoService';
 import EstadoDisponibilidad from '../components/EstadoDisponibilidad';
 import Portada from '../components/Portada';
 import '../app.css';
@@ -11,8 +12,13 @@ export default function DetalleLibroPage() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
+  const [solicitando, setSolicitando] = useState(false);
+  const [aviso, setAviso] = useState('');
+  const [avisoError, setAvisoError] = useState('');
+
+  const cargar = useCallback(() => {
     let activo = true;
+    setCargando(true);
     obtenerDetalle(id)
       .then((datos) => { if (activo) setLibro(datos); })
       .catch((err) => {
@@ -23,6 +29,21 @@ export default function DetalleLibroPage() {
       .finally(() => { if (activo) setCargando(false); });
     return () => { activo = false; };
   }, [id]);
+
+  useEffect(() => cargar(), [cargar]);
+
+  const onSolicitar = () => {
+    setSolicitando(true);
+    setAviso('');
+    setAvisoError('');
+    solicitarPrestamo(Number(id))
+      .then(() => {
+        setAviso('Préstamo registrado. Tienes 14 días para devolverlo.');
+        cargar(); // refresca la disponibilidad
+      })
+      .catch((err) => setAvisoError(err.message))
+      .finally(() => setSolicitando(false));
+  };
 
   return (
     <section>
@@ -58,10 +79,22 @@ export default function DetalleLibroPage() {
             )}
 
             <div className="det-acciones">
-              <button className="boton-primario" type="button" disabled>Solicitar préstamo</button>
+              <button
+                className="boton-primario"
+                type="button"
+                onClick={onSolicitar}
+                disabled={!libro.disponible || solicitando}
+              >
+                {solicitando ? 'Solicitando…' : 'Solicitar préstamo'}
+              </button>
               <button className="boton-secundario" type="button" disabled>Unirme a cola de espera</button>
             </div>
-            <p className="det-nota">Préstamos y reservas se habilitan en el próximo sprint.</p>
+
+            {aviso && <p className="mensaje" style={{ color: '#1f7a48', marginTop: 10 }}>{aviso}</p>}
+            {avisoError && <p className="mensaje-error" style={{ marginTop: 10 }}>{avisoError}</p>}
+            {!libro.disponible && !aviso && (
+              <p className="det-nota">No hay ejemplares disponibles por ahora. La reserva en cola se habilita pronto.</p>
+            )}
 
             <div className="det-caja">
               <div><strong>{libro.ejemplares}</strong><span>Ejemplares</span></div>
@@ -73,3 +106,4 @@ export default function DetalleLibroPage() {
     </section>
   );
 }
+

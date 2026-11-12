@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import CatalogoPage from './pages/CatalogoPage';
 import DetalleLibroPage from './pages/DetalleLibroPage';
 import ImportarPage from './pages/ImportarPage';
+import MisPrestamosPage from './pages/MisPrestamosPage';
 import ProximamentePage from './pages/ProximamentePage';
 import Layout from './components/Layout';
 import RutaProtegida from './components/RutaProtegida';
@@ -21,6 +22,7 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/catalogo" element={<CatalogoPage />} />
             <Route path="/libros/:id" element={<DetalleLibroPage />} />
+            <Route path="/mis-prestamos" element={<MisPrestamosPage />} />
             <Route path="/proximamente/:seccion" element={<ProximamentePage />} />
 
             {/* Solo administrador */}

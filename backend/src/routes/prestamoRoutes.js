@@ -2,7 +2,10 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middlewares/authMiddleware');
 const autorizarRol = require('../middlewares/rolMiddleware');
-const { solicitar, devolver, renovar } = require('../controllers/prestamoController');
+const { solicitar, devolver, renovar, listar } = require('../controllers/prestamoController');
+
+// Listar préstamos: solo el administrador (HU-12 gestión).
+router.get('/', authMiddleware, autorizarRol('ADMIN'), listar);
 
 // Solicitar un préstamo: cualquier usuario autenticado (HU-11).
 router.post('/', authMiddleware, solicitar);

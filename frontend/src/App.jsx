@@ -6,6 +6,7 @@ import DetalleLibroPage from './pages/DetalleLibroPage';
 import ImportarPage from './pages/ImportarPage';
 import MisPrestamosPage from './pages/MisPrestamosPage';
 import GestionPrestamosPage from './pages/GestionPrestamosPage';
+import UsuariosMultasPage from './pages/UsuariosMultasPage';
 import ProximamentePage from './pages/ProximamentePage';
 import Layout from './components/Layout';
 import RutaProtegida from './components/RutaProtegida';
@@ -30,6 +31,7 @@ function App() {
             <Route element={<RutaProtegida soloAdmin />}>
               <Route path="/admin/importar" element={<ImportarPage />} />
               <Route path="/admin/prestamos" element={<GestionPrestamosPage />} />
+              <Route path="/admin/usuarios" element={<UsuariosMultasPage />} />
             </Route>
           </Route>
         </Route>

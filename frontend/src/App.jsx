@@ -5,6 +5,7 @@ import CatalogoPage from './pages/CatalogoPage';
 import DetalleLibroPage from './pages/DetalleLibroPage';
 import ImportarPage from './pages/ImportarPage';
 import MisPrestamosPage from './pages/MisPrestamosPage';
+import GestionPrestamosPage from './pages/GestionPrestamosPage';
 import ProximamentePage from './pages/ProximamentePage';
 import Layout from './components/Layout';
 import RutaProtegida from './components/RutaProtegida';
@@ -28,6 +29,7 @@ function App() {
             {/* Solo administrador */}
             <Route element={<RutaProtegida soloAdmin />}>
               <Route path="/admin/importar" element={<ImportarPage />} />
+              <Route path="/admin/prestamos" element={<GestionPrestamosPage />} />
             </Route>
           </Route>
         </Route>

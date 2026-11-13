@@ -34,3 +34,22 @@ export async function renovarPrestamo(prestamoId) {
   if (!res.ok) throw new Error(data.error || 'No se pudo renovar el préstamo');
   return data;
 }
+
+// Listar préstamos para el administrador (HU-12).
+export async function listarPrestamos(estado) {
+  const qs = estado ? `?estado=${estado}` : '';
+  const res = await fetch(`${API_URL}/prestamos${qs}`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('No se pudieron cargar los préstamos');
+  return res.json();
+}
+
+// Registrar la devolución de un préstamo (HU-12).
+export async function registrarDevolucion(prestamoId) {
+  const res = await fetch(`${API_URL}/prestamos/${prestamoId}/devolver`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'No se pudo registrar la devolución');
+  return data;
+}

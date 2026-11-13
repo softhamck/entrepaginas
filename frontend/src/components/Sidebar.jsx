@@ -11,7 +11,7 @@ const NAV_ADMIN = [
   { label: 'Dashboard', to: '/proximamente/dashboard' },
   { label: 'Gestión de inventario', to: '/catalogo' },
   { label: 'Importar inventario', to: '/admin/importar' },
-  { label: 'Gestión de préstamos', to: '/proximamente/prestamos' },
+  { label: 'Gestión de préstamos', to: '/admin/prestamos' },
   { label: 'Colas de espera', to: '/proximamente/colas' },
   { label: 'Usuarios y multas', to: '/proximamente/usuarios' },
 ];
@@ -45,4 +45,3 @@ export default function Sidebar({ abierto = false, cerrar = () => {} }) {
     </aside>
   );
 }
-

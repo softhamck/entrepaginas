@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { obtenerHistorial } from '../services/prestamoService';
+import { obtenerHistorial, renovarPrestamo } from '../services/prestamoService';
 import '../app.css';
 
 const TABS = [
@@ -40,8 +40,13 @@ export default function MisPrestamosPage() {
   const [error, setError] = useState('');
   const [tab, setTab] = useState('ACTIVO');
 
-  useEffect(() => {
+  const [renovandoId, setRenovandoId] = useState(null);
+  const [aviso, setAviso] = useState('');
+  const [avisoError, setAvisoError] = useState('');
+
+  const cargar = useCallback(() => {
     let activo = true;
+    setCargando(true);
     obtenerHistorial(usuario.id)
       .then((datos) => { if (activo) setPrestamos(datos); })
       .catch(() => { if (activo) setError('No pudimos cargar tus préstamos.'); })
@@ -49,8 +54,21 @@ export default function MisPrestamosPage() {
     return () => { activo = false; };
   }, [usuario.id]);
 
+  useEffect(() => cargar(), [cargar]);
+
+  const onRenovar = (id) => {
+    setRenovandoId(id);
+    setAviso('');
+    setAvisoError('');
+    renovarPrestamo(id)
+      .then(() => { setAviso('Préstamo renovado. Se extendió 14 días más.'); cargar(); })
+      .catch((err) => setAvisoError(err.message))
+      .finally(() => setRenovandoId(null));
+  };
+
   const visibles = prestamos.filter((p) => p.estado === tab);
   const etiquetaTab = TABS.find((t) => t.id === tab).label.toLowerCase();
+  const mostrarAcciones = tab === 'ACTIVO';
 
   return (
     <section>
@@ -59,11 +77,15 @@ export default function MisPrestamosPage() {
 
       <div className="cat-vista" style={{ margin: '18px 0 20px', display: 'inline-flex' }}>
         {TABS.map((t) => (
-          <button key={t.id} type="button" className={tab === t.id ? 'activo' : ''} onClick={() => setTab(t.id)}>
+          <button key={t.id} type="button" className={tab === t.id ? 'activo' : ''}
+            onClick={() => { setTab(t.id); setAviso(''); setAvisoError(''); }}>
             {t.label}
           </button>
         ))}
       </div>
+
+      {aviso && <p className="mensaje" style={{ color: '#1f7a48' }}>{aviso}</p>}
+      {avisoError && <p className="mensaje-error">{avisoError}</p>}
 
       {cargando && <p className="mensaje">Cargando…</p>}
       {error && <p className="mensaje-error">{error}</p>}
@@ -84,6 +106,7 @@ export default function MisPrestamosPage() {
           <thead>
             <tr>
               <th>Libro</th><th>Préstamo</th><th>Vencimiento</th><th>Estado</th><th>Multa</th>
+              {mostrarAcciones && <th></th>}
             </tr>
           </thead>
           <tbody>
@@ -102,6 +125,19 @@ export default function MisPrestamosPage() {
                 </td>
                 <td><EstadoPrestamo estado={p.estado} /></td>
                 <td>{p.multa ? <span className="celda-error">{moneda(p.multa.monto)}</span> : '—'}</td>
+                {mostrarAcciones && (
+                  <td>
+                    <button
+                      type="button"
+                      className="boton-secundario"
+                      style={{ padding: '6px 16px' }}
+                      onClick={() => onRenovar(p.id)}
+                      disabled={renovandoId === p.id}
+                    >
+                      {renovandoId === p.id ? 'Renovando…' : 'Renovar'}
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -110,3 +146,6 @@ export default function MisPrestamosPage() {
     </section>
   );
 }
+
+
+

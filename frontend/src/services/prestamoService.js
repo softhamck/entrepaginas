@@ -23,3 +23,14 @@ export async function obtenerHistorial(usuarioId) {
   if (!res.ok) throw new Error('No se pudo cargar el historial de préstamos');
   return res.json();
 }
+
+// Renovar un préstamo activo (HU-13).
+export async function renovarPrestamo(prestamoId) {
+  const res = await fetch(`${API_URL}/prestamos/${prestamoId}/renovar`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'No se pudo renovar el préstamo');
+  return data;
+}

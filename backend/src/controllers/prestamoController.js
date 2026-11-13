@@ -1,4 +1,4 @@
-const { solicitarPrestamo, devolverPrestamo, renovarPrestamo, ReglaNegocioError } = require('../services/prestamoService');
+const { solicitarPrestamo, devolverPrestamo, renovarPrestamo, listarPrestamos, ReglaNegocioError } = require('../services/prestamoService');
 
 // HU-11: POST /api/prestamos  { libroId }
 async function solicitar(req, res) {
@@ -51,4 +51,14 @@ async function renovar(req, res) {
   }
 }
 
-module.exports = { solicitar, devolver, renovar };
+// HU-12: GET /api/prestamos?estado=ACTIVO  (listado para el administrador)
+async function listar(req, res) {
+  try {
+    const prestamos = await listarPrestamos({ estado: req.query.estado });
+    return res.json(prestamos);
+  } catch (err) {
+    return res.status(500).json({ error: 'No se pudieron consultar los préstamos' });
+  }
+}
+
+module.exports = { solicitar, devolver, renovar, listar };

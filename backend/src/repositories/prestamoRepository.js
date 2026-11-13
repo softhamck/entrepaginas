@@ -75,6 +75,18 @@ function buscarPrestamosPorUsuario(usuarioId) {
   });
 }
 
+// Lista préstamos (para el administrador), con usuario y libro (HU-12 gestión).
+function listarPrestamos({ estado } = {}) {
+  return prisma.prestamo.findMany({
+    where: estado ? { estado } : {},
+    include: {
+      usuario: { select: { id: true, nombre: true } },
+      ejemplar: { include: { libro: { select: { titulo: true } } } },
+    },
+    orderBy: { fechaPrestamo: 'desc' },
+  });
+}
+
 module.exports = {
   buscarLibroPorId,
   buscarEjemplarDisponiblePorLibro,
@@ -85,5 +97,6 @@ module.exports = {
   registrarDevolucion,
   primeraReservaDelLibro,
   renovarPrestamo,
+  listarPrestamos,
   buscarPrestamosPorUsuario,
 };

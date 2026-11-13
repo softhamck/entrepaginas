@@ -152,11 +152,34 @@ async function obtenerHistorial(usuarioId) {
   });
 }
 
+/**
+ * Lista préstamos para la gestión del administrador (HU-12).
+ * Calcula el estado visible (ACTIVO/VENCIDO/DEVUELTO) y los días de atraso.
+ */
+async function listarPrestamos({ estado } = {}) {
+  const prestamos = await prestamoRepository.listarPrestamos({ estado });
+  const hoy = new Date().setHours(0, 0, 0, 0);
+  return prestamos.map((p) => {
+    const venc = new Date(p.fechaVencimiento).setHours(0, 0, 0, 0);
+    const vencido = p.estado === 'ACTIVO' && venc < hoy;
+    return {
+      id: p.id,
+      usuario: { id: p.usuario.id, nombre: p.usuario.nombre },
+      libro: { titulo: p.ejemplar.libro.titulo },
+      fechaPrestamo: p.fechaPrestamo,
+      fechaVencimiento: p.fechaVencimiento,
+      estado: p.estado === 'DEVUELTO' ? 'DEVUELTO' : (vencido ? 'VENCIDO' : 'ACTIVO'),
+      diasAtraso: vencido ? Math.round((hoy - venc) / 86400000) : 0,
+    };
+  });
+}
+
 module.exports = {
   solicitarPrestamo,
   devolverPrestamo,
   renovarPrestamo,
   obtenerHistorial,
+  listarPrestamos,
   ReglaNegocioError,
   PLAZO_DIAS,
   MAX_PRESTAMOS_ACTIVOS,

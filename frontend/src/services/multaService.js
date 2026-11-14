@@ -22,3 +22,10 @@ export async function pagarMulta(id) {
   if (!res.ok) throw new Error(data.error || 'No se pudo registrar el pago');
   return data;
 }
+
+// Estado de bloqueo por multa de un usuario (HU-17).
+export async function obtenerBloqueo(usuarioId) {
+  const res = await fetch(`${API_URL}/usuarios/${usuarioId}/bloqueo`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('No se pudo consultar el estado de bloqueo');
+  return res.json();
+}

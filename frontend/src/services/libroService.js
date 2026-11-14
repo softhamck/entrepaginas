@@ -38,3 +38,33 @@ export async function importarInventario(archivo, duplicados) {
   if (!res.ok) throw new Error(data.error || 'No se pudo importar el archivo');
   return data;
 }
+
+// Editar un libro (HU-10, solo admin).
+export async function actualizarLibro(id, datos) {
+  const res = await fetch(`${API_URL}/libros/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify(datos),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'No se pudo actualizar el libro');
+  return data;
+}
+
+// Ejemplares de un libro (HU-10, solo admin).
+export async function obtenerEjemplares(libroId) {
+  const res = await fetch(`${API_URL}/libros/${libroId}/ejemplares`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('No se pudieron cargar los ejemplares');
+  return res.json();
+}
+
+// Dar de baja un ejemplar (HU-10, solo admin).
+export async function darBajaEjemplar(ejemplarId) {
+  const res = await fetch(`${API_URL}/ejemplares/${ejemplarId}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'No se pudo dar de baja el ejemplar');
+  return data;
+}

@@ -4,7 +4,7 @@ const router = express.Router();
 
 const authMiddleware = require('../middlewares/authMiddleware');
 const autorizarRol = require('../middlewares/rolMiddleware');
-const { importar, listar, detalle, actualizar } = require('../controllers/libroController');
+const { importar, listar, detalle, actualizar, ejemplares } = require('../controllers/libroController');
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -13,6 +13,9 @@ router.get('/', authMiddleware, listar);
 
 // Detalle de un libro: cualquier usuario autenticado (HU-09).
 router.get('/:id', authMiddleware, detalle);
+
+// Ejemplares de un libro: solo el administrador (HU-10).
+router.get('/:id/ejemplares', authMiddleware, autorizarRol('ADMIN'), ejemplares);
 
 // Editar un libro: solo el administrador (HU-10).
 router.patch('/:id', authMiddleware, autorizarRol('ADMIN'), actualizar);

@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { obtenerDetalle } from '../services/libroService';
 import { solicitarPrestamo } from '../services/prestamoService';
+import { crearReserva } from '../services/reservaService';
 import EstadoDisponibilidad from '../components/EstadoDisponibilidad';
 import Portada from '../components/Portada';
 import '../app.css';
@@ -13,6 +14,7 @@ export default function DetalleLibroPage() {
   const [error, setError] = useState('');
 
   const [solicitando, setSolicitando] = useState(false);
+  const [reservando, setReservando] = useState(false);
   const [aviso, setAviso] = useState('');
   const [avisoError, setAvisoError] = useState('');
 
@@ -39,10 +41,22 @@ export default function DetalleLibroPage() {
     solicitarPrestamo(Number(id))
       .then(() => {
         setAviso('Préstamo registrado. Tienes 14 días para devolverlo.');
-        cargar(); // refresca la disponibilidad
+        cargar();
       })
       .catch((err) => setAvisoError(err.message))
       .finally(() => setSolicitando(false));
+  };
+
+  const onReservar = () => {
+    setReservando(true);
+    setAviso('');
+    setAvisoError('');
+    crearReserva(Number(id))
+      .then((r) => {
+        setAviso(`Estás en la lista de espera. Tu posición es la #${r.posicion}. Te avisaremos cuando esté disponible.`);
+      })
+      .catch((err) => setAvisoError(err.message))
+      .finally(() => setReservando(false));
   };
 
   return (
@@ -87,13 +101,20 @@ export default function DetalleLibroPage() {
               >
                 {solicitando ? 'Solicitando…' : 'Solicitar préstamo'}
               </button>
-              <button className="boton-secundario" type="button" disabled>Unirme a cola de espera</button>
+              <button
+                className="boton-secundario"
+                type="button"
+                onClick={onReservar}
+                disabled={libro.disponible || reservando}
+              >
+                {reservando ? 'Uniéndote…' : 'Unirme a cola de espera'}
+              </button>
             </div>
 
             {aviso && <p className="mensaje" style={{ color: '#1f7a48', marginTop: 10 }}>{aviso}</p>}
             {avisoError && <p className="mensaje-error" style={{ marginTop: 10 }}>{avisoError}</p>}
             {!libro.disponible && !aviso && (
-              <p className="det-nota">No hay ejemplares disponibles por ahora. La reserva en cola se habilita pronto.</p>
+              <p className="det-nota">No hay ejemplares disponibles. Únete a la cola y te avisaremos cuando se libere uno.</p>
             )}
 
             <div className="det-caja">

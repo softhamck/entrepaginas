@@ -8,6 +8,7 @@ import MisPrestamosPage from './pages/MisPrestamosPage';
 import GestionPrestamosPage from './pages/GestionPrestamosPage';
 import UsuariosMultasPage from './pages/UsuariosMultasPage';
 import MiPerfilPage from './pages/MiPerfilPage';
+import ColasEsperaPage from './pages/ColasEsperaPage';
 import ProximamentePage from './pages/ProximamentePage';
 import Layout from './components/Layout';
 import RutaProtegida from './components/RutaProtegida';
@@ -34,6 +35,7 @@ function App() {
               <Route path="/admin/importar" element={<ImportarPage />} />
               <Route path="/admin/prestamos" element={<GestionPrestamosPage />} />
               <Route path="/admin/usuarios" element={<UsuariosMultasPage />} />
+              <Route path="/admin/colas" element={<ColasEsperaPage />} />
             </Route>
           </Route>
         </Route>

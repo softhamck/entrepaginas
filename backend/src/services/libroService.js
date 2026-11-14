@@ -193,7 +193,14 @@ async function darDeBajaEjemplar(id) {
   return { id, accion: 'ELIMINADO', mensaje: 'Ejemplar eliminado (no tenía historial de préstamos).' };
 }
 
+// Ejemplares de un libro para la gestión de inventario (HU-10).
+async function listarEjemplares(libroId) {
+  const libro = await libroRepository.buscarLibroPorId(libroId);
+  if (!libro) throw new ReglaNegocioError('Libro no encontrado', 404);
+  return libroRepository.listarEjemplaresDeLibro(libroId);
+}
+
 module.exports = {
   importarInventario, parsearCosto, mapearFila, listarCatalogo, obtenerDetalle,
-  actualizarLibro, darDeBajaEjemplar,
+  actualizarLibro, darDeBajaEjemplar, listarEjemplares,
 };

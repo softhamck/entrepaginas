@@ -70,6 +70,15 @@ function eliminarEjemplar(id) {
   return prisma.ejemplar.delete({ where: { id } });
 }
 
+// Lista los ejemplares de un libro (id, código, estado) para la gestión (HU-10).
+function listarEjemplaresDeLibro(libroId) {
+  return prisma.ejemplar.findMany({
+    where: { libroId },
+    select: { id: true, codigo: true, estado: true },
+    orderBy: { codigo: 'asc' },
+  });
+}
+
 module.exports = {
   buscarLibroPorTituloAutor,
   crearLibro,
@@ -82,4 +91,5 @@ module.exports = {
   contarPrestamosDeEjemplar,
   darDeBajaEjemplar,
   eliminarEjemplar,
+  listarEjemplaresDeLibro,
 };

@@ -2,12 +2,14 @@ import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { obtenerHistorial, renovarPrestamo } from '../services/prestamoService';
+import { misReservas } from '../services/reservaService';
 import '../app.css';
 
 const TABS = [
   { id: 'ACTIVO', label: 'Activos' },
   { id: 'VENCIDO', label: 'Vencidos' },
   { id: 'DEVUELTO', label: 'Devueltos' },
+  { id: 'RESERVAS', label: 'Reservas' },
 ];
 
 function fecha(iso) {
@@ -36,6 +38,7 @@ function EstadoPrestamo({ estado }) {
 export default function MisPrestamosPage() {
   const { usuario } = useAuth();
   const [prestamos, setPrestamos] = useState([]);
+  const [reservas, setReservas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
   const [tab, setTab] = useState('ACTIVO');
@@ -47,9 +50,9 @@ export default function MisPrestamosPage() {
   const cargar = useCallback(() => {
     let activo = true;
     setCargando(true);
-    obtenerHistorial(usuario.id)
-      .then((datos) => { if (activo) setPrestamos(datos); })
-      .catch(() => { if (activo) setError('No pudimos cargar tus préstamos.'); })
+    Promise.all([obtenerHistorial(usuario.id), misReservas()])
+      .then(([hist, res]) => { if (activo) { setPrestamos(hist); setReservas(res); } })
+      .catch(() => { if (activo) setError('No pudimos cargar tu actividad.'); })
       .finally(() => { if (activo) setCargando(false); });
     return () => { activo = false; };
   }, [usuario.id]);
@@ -66,14 +69,15 @@ export default function MisPrestamosPage() {
       .finally(() => setRenovandoId(null));
   };
 
-  const visibles = prestamos.filter((p) => p.estado === tab);
+  const esReservas = tab === 'RESERVAS';
+  const visibles = esReservas ? reservas : prestamos.filter((p) => p.estado === tab);
   const etiquetaTab = TABS.find((t) => t.id === tab).label.toLowerCase();
   const mostrarAcciones = tab === 'ACTIVO';
 
   return (
     <section>
       <h1 className="cat-titulo">Mis préstamos</h1>
-      <p className="cat-conteo">Tu actividad de préstamos en la biblioteca.</p>
+      <p className="cat-conteo">Tu actividad de préstamos y reservas en la biblioteca.</p>
 
       <div className="cat-vista" style={{ margin: '18px 0 20px', display: 'inline-flex' }}>
         {TABS.map((t) => (
@@ -92,8 +96,10 @@ export default function MisPrestamosPage() {
 
       {!cargando && !error && visibles.length === 0 && (
         <div className="prest-vacio">
-          <p className="mensaje">No tienes préstamos {etiquetaTab}.</p>
-          {tab === 'ACTIVO' && (
+          <p className="mensaje">
+            {esReservas ? 'No tienes reservas en cola.' : `No tienes préstamos ${etiquetaTab}.`}
+          </p>
+          {(tab === 'ACTIVO' || esReservas) && (
             <Link to="/catalogo" className="boton-secundario" style={{ marginTop: 12, display: 'inline-block' }}>
               Explorar el catálogo
             </Link>
@@ -101,7 +107,29 @@ export default function MisPrestamosPage() {
         </div>
       )}
 
-      {!cargando && !error && visibles.length > 0 && (
+      {/* Reservas */}
+      {!cargando && !error && esReservas && visibles.length > 0 && (
+        <table className="cat-tabla">
+          <thead>
+            <tr><th>Libro</th><th>Posición en la cola</th><th>Solicitada</th></tr>
+          </thead>
+          <tbody>
+            {visibles.map((r) => (
+              <tr key={r.id}>
+                <td>
+                  <strong>{r.libro.titulo}</strong>
+                  <div className="prest-autor">{r.libro.autor}</div>
+                </td>
+                <td>#{r.posicion}</td>
+                <td>{fecha(r.fechaSolicitud)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {/* Préstamos */}
+      {!cargando && !error && !esReservas && visibles.length > 0 && (
         <table className="cat-tabla">
           <thead>
             <tr>
@@ -146,6 +174,3 @@ export default function MisPrestamosPage() {
     </section>
   );
 }
-
-
-

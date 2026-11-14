@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { obtenerHistorial, renovarPrestamo } from '../services/prestamoService';
 import { misReservas } from '../services/reservaService';
+import BannerBloqueo from '../components/BannerBloqueo';
 import '../app.css';
 
 const TABS = [
@@ -78,6 +79,8 @@ export default function MisPrestamosPage() {
     <section>
       <h1 className="cat-titulo">Mis préstamos</h1>
       <p className="cat-conteo">Tu actividad de préstamos y reservas en la biblioteca.</p>
+
+      <BannerBloqueo usuarioId={usuario.id} />
 
       <div className="cat-vista" style={{ margin: '18px 0 20px', display: 'inline-flex' }}>
         {TABS.map((t) => (

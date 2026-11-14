@@ -139,3 +139,7 @@
 .switch input:checked + .switch-slider { background: #003370; }
 .switch input:checked + .switch-slider::before { transform: translateX(20px); }
 .switch input:disabled + .switch-slider { opacity: 0.6; cursor: default; }
+
+/* ===== Banner de bloqueo ===== */
+.banner-bloqueo { display: flex; align-items: center; gap: 10px; background: #fbe4e2; color: #b3261e; border: 1px solid #f3c7c3; border-radius: 14px; padding: 14px 18px; margin: 4px 0 4px; font-size: 14px; }
+.banner-bloqueo-icono { font-size: 10px; flex-shrink: 0; }

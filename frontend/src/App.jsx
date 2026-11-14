@@ -7,6 +7,7 @@ import ImportarPage from './pages/ImportarPage';
 import MisPrestamosPage from './pages/MisPrestamosPage';
 import GestionPrestamosPage from './pages/GestionPrestamosPage';
 import UsuariosMultasPage from './pages/UsuariosMultasPage';
+import MiPerfilPage from './pages/MiPerfilPage';
 import ProximamentePage from './pages/ProximamentePage';
 import Layout from './components/Layout';
 import RutaProtegida from './components/RutaProtegida';
@@ -25,6 +26,7 @@ function App() {
             <Route path="/catalogo" element={<CatalogoPage />} />
             <Route path="/libros/:id" element={<DetalleLibroPage />} />
             <Route path="/mis-prestamos" element={<MisPrestamosPage />} />
+            <Route path="/mi-perfil" element={<MiPerfilPage />} />
             <Route path="/proximamente/:seccion" element={<ProximamentePage />} />
 
             {/* Solo administrador */}

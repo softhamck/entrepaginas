@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 const NAV_ASOCIADO = [
   { label: 'Catálogo', to: '/catalogo' },
   { label: 'Mis préstamos', to: '/mis-prestamos' },
-  { label: 'Mi perfil', to: '/proximamente/mi-perfil' },
+  { label: 'Mi perfil', to: '/mi-perfil' },
 ];
 
 const NAV_ADMIN = [

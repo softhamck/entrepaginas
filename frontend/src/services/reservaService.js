@@ -23,3 +23,10 @@ export async function misReservas() {
   if (!res.ok) throw new Error('No se pudieron cargar tus reservas');
   return res.json();
 }
+
+// Todas las colas de espera, agrupadas por libro (HU-18, solo admin).
+export async function listarColas() {
+  const res = await fetch(`${API_URL}/reservas/colas`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('No se pudieron cargar las colas de espera');
+  return res.json();
+}

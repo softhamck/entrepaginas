@@ -41,4 +41,27 @@ async function misReservas(usuarioId) {
   }));
 }
 
-module.exports = { crearReserva, misReservas };
+/**
+ * Todas las colas de espera, agrupadas por libro (HU-18 vista admin).
+ */
+async function listarColas() {
+  const reservas = await reservaRepository.listarTodas();
+  const porLibro = new Map();
+  for (const r of reservas) {
+    if (!porLibro.has(r.libroId)) {
+      porLibro.set(r.libroId, {
+        libro: { id: r.libroId, titulo: r.libro.titulo, autor: r.libro.autor },
+        cola: [],
+      });
+    }
+    porLibro.get(r.libroId).cola.push({
+      id: r.id,
+      usuario: { nombre: r.usuario.nombre },
+      posicion: r.posicion,
+      fechaSolicitud: r.fechaSolicitud,
+    });
+  }
+  return [...porLibro.values()];
+}
+
+module.exports = { crearReserva, misReservas, listarColas };

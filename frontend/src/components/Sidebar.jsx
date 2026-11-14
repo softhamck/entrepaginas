@@ -3,17 +3,17 @@ import { useAuth } from '../context/AuthContext';
 
 const NAV_ASOCIADO = [
   { label: 'Catálogo', to: '/catalogo' },
-  { label: 'Mis préstamos', to: '/proximamente/mis-prestamos' },
-  { label: 'Mi perfil', to: '/proximamente/mi-perfil' },
+  { label: 'Mis préstamos', to: '/mis-prestamos' },
+  { label: 'Mi perfil', to: '/mi-perfil' },
 ];
 
 const NAV_ADMIN = [
   { label: 'Dashboard', to: '/proximamente/dashboard' },
   { label: 'Gestión de inventario', to: '/catalogo' },
   { label: 'Importar inventario', to: '/admin/importar' },
-  { label: 'Gestión de préstamos', to: '/proximamente/prestamos' },
+  { label: 'Gestión de préstamos', to: '/admin/prestamos' },
   { label: 'Colas de espera', to: '/proximamente/colas' },
-  { label: 'Usuarios y multas', to: '/proximamente/usuarios' },
+  { label: 'Usuarios y multas', to: '/admin/usuarios' },
 ];
 
 export default function Sidebar({ abierto = false, cerrar = () => {} }) {
@@ -45,6 +45,3 @@ export default function Sidebar({ abierto = false, cerrar = () => {} }) {
     </aside>
   );
 }
-
-
-

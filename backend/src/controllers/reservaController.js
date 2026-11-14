@@ -1,4 +1,4 @@
-const { crearReserva, misReservas } = require('../services/reservaService');
+const { crearReserva, misReservas, listarColas } = require('../services/reservaService');
 const { ReglaNegocioError } = require('../services/prestamoService');
 
 // HU-18: POST /api/reservas  { libroId }
@@ -28,4 +28,14 @@ async function listar(req, res) {
   }
 }
 
-module.exports = { crear, listar };
+// HU-18: GET /api/reservas/colas  (todas las colas, solo admin)
+async function colas(req, res) {
+  try {
+    const data = await listarColas();
+    return res.json(data);
+  } catch (err) {
+    return res.status(500).json({ error: 'No se pudieron consultar las colas de espera' });
+  }
+}
+
+module.exports = { crear, listar, colas };

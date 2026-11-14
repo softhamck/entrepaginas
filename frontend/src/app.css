@@ -143,3 +143,10 @@
 /* ===== Banner de bloqueo ===== */
 .banner-bloqueo { display: flex; align-items: center; gap: 10px; background: #fbe4e2; color: #b3261e; border: 1px solid #f3c7c3; border-radius: 14px; padding: 14px 18px; margin: 4px 0 4px; font-size: 14px; }
 .banner-bloqueo-icono { font-size: 10px; flex-shrink: 0; }
+
+/* ===== Gestión de inventario (admin) ===== */
+.admin-panel { margin-top: 8px; }
+.admin-form { display: flex; flex-direction: column; gap: 12px; max-width: 480px; margin-bottom: 8px; }
+.admin-campo { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #333; }
+.admin-campo input, .admin-campo textarea { border: 1px solid #e2ddcb; border-radius: 12px; padding: 9px 14px; font-size: 14px; font-family: inherit; }
+.admin-campo input:focus, .admin-campo textarea:focus { outline: none; border-color: #43a5d0; }

@@ -25,4 +25,15 @@ function reservasDeUsuario(usuarioId) {
   });
 }
 
-module.exports = { reservaExistente, contarReservasDeLibro, crearReserva, reservasDeUsuario };
+// Todas las reservas con libro y usuario, ordenadas por libro y posición (HU-18 admin).
+function listarTodas() {
+  return prisma.reserva.findMany({
+    include: {
+      libro: { select: { titulo: true, autor: true } },
+      usuario: { select: { id: true, nombre: true } },
+    },
+    orderBy: [{ libroId: 'asc' }, { posicion: 'asc' }],
+  });
+}
+
+module.exports = { reservaExistente, contarReservasDeLibro, crearReserva, reservasDeUsuario, listarTodas };

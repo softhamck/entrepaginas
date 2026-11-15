@@ -25,7 +25,7 @@ function sumarDias(fecha, dias) {
 /**
  * Solicitar préstamo (HU-11).
  * Valida existencia del libro, multa pendiente, límite y disponibilidad;
- * si todo pasa, registra el préstamo con vencimiento a 14 días.
+ * si todo pasa, registra el préstamo con vencimiento a 15 días.
  */
 async function solicitarPrestamo({ usuarioId, libroId }) {
   const libro = await prestamoRepository.buscarLibroPorId(libroId);
@@ -92,7 +92,7 @@ async function devolverPrestamo({ prestamoId }) {
 /**
  * Renovar préstamo (HU-13).
  * Solo si es del usuario, está ACTIVO, no vencido, sin multa, sin renovación
- * previa y sin cola de espera; extiende el vencimiento 14 días más.
+ * previa y sin cola de espera; extiende el vencimiento 5 días más.
  */
 async function renovarPrestamo({ prestamoId, usuarioId }) {
   const prestamo = await prestamoRepository.buscarPrestamoPorId(prestamoId);

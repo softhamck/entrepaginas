@@ -1,10 +1,12 @@
 const prestamoRepository = require('../repositories/prestamoRepository');
 
 // Reglas de negocio del préstamo (documento maestro + criterios HU-11).
-const PLAZO_DIAS = 14;              // vencimiento a 14 días
+const PLAZO_DIAS = 15;              // vencimiento a 15 días
 const MAX_PRESTAMOS_ACTIVOS = 3;    // máximo de préstamos activos por usuario
 const TARIFA_MULTA_DIARIA = 1000;   // COP por día de atraso (CONFIRMAR con el equipo)
-const UMBRAL_POR_VENCER = 3;        // días para marcar un préstamo "por vencer"
+const UMBRAL_POR_VENCER = 5;        // días para marcar un préstamo "por vencer"
+const RENOVACION_DIAS = 5;          // días que suma una renovación
+const RENOVAR_VENTANA_DIAS = 5;     // solo se puede renovar faltando <= 5 días
 
 // Error de regla de negocio: lleva el código HTTP que debe devolver el controlador.
 class ReglaNegocioError extends Error {
@@ -100,9 +102,15 @@ async function renovarPrestamo({ prestamoId, usuarioId }) {
   if (prestamo.estado !== 'ACTIVO') {
     throw new ReglaNegocioError('Solo se pueden renovar préstamos activos.');
   }
-  // Esc. 2: vencido.
-  if (new Date(prestamo.fechaVencimiento).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0)) {
+  // Esc. 2: vencido; y solo se renueva dentro de la ventana (faltando <= 5 días).
+  const hoy = new Date().setHours(0, 0, 0, 0);
+  const venc = new Date(prestamo.fechaVencimiento).setHours(0, 0, 0, 0);
+  const diasRestantes = Math.round((venc - hoy) / 86400000);
+  if (diasRestantes < 0) {
     throw new ReglaNegocioError('El préstamo está vencido. Debes devolver el libro y pagar la multa si aplica.');
+  }
+  if (diasRestantes > RENOVAR_VENTANA_DIAS) {
+    throw new ReglaNegocioError(`Solo puedes renovar cuando falten ${RENOVAR_VENTANA_DIAS} días o menos para el vencimiento.`);
   }
   // Sin multa pendiente.
   if (await prestamoRepository.tieneMultaPendiente(usuarioId)) {
@@ -116,7 +124,7 @@ async function renovarPrestamo({ prestamoId, usuarioId }) {
   if (await prestamoRepository.primeraReservaDelLibro(prestamo.ejemplar.libroId)) {
     throw new ReglaNegocioError('No se puede renovar: hay reservas pendientes de este libro.');
   }
-  const nuevaFecha = sumarDias(prestamo.fechaVencimiento, PLAZO_DIAS);
+  const nuevaFecha = sumarDias(prestamo.fechaVencimiento, RENOVACION_DIAS);
   return prestamoRepository.renovarPrestamo({ prestamoId, nuevaFecha });
 }
 
@@ -184,4 +192,6 @@ module.exports = {
   PLAZO_DIAS,
   MAX_PRESTAMOS_ACTIVOS,
   TARIFA_MULTA_DIARIA,
+  RENOVACION_DIAS,
+  RENOVAR_VENTANA_DIAS,
 };

@@ -16,7 +16,6 @@ export default function UsuariosMultasPage() {
 
   const cargar = useCallback(() => {
     let activo = true;
-    setCargando(true);
     listarMultas()
       .then((datos) => { if (activo) setMultas(datos); })
       .catch(() => { if (activo) setError('No pudimos cargar las multas.'); })

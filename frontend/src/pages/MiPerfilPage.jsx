@@ -13,7 +13,6 @@ export default function MiPerfilPage() {
 
   const cargar = useCallback(() => {
     let activo = true;
-    setCargando(true);
     obtenerRecomendaciones()
       .then((d) => { if (activo) setDatos(d); })
       .catch(() => { if (activo) setError('No pudimos cargar tus recomendaciones.'); })

@@ -10,6 +10,7 @@ import UsuariosMultasPage from './pages/UsuariosMultasPage';
 import MiPerfilPage from './pages/MiPerfilPage';
 import ColasEsperaPage from './pages/ColasEsperaPage';
 import ProximamentePage from './pages/ProximamentePage';
+import NotFoundPage from './pages/NotFoundPage';
 import Layout from './components/Layout';
 import RutaProtegida from './components/RutaProtegida';
 import { AuthProvider } from './context/AuthContext';
@@ -41,6 +42,9 @@ function App() {
         </Route>
 
         <Route path="/" element={<Navigate to="/catalogo" />} />
+
+        {/* Cualquier ruta inexistente: página 404 */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </AuthProvider>
   );

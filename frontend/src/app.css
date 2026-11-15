@@ -150,3 +150,10 @@
 .admin-campo { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #333; }
 .admin-campo input, .admin-campo textarea { border: 1px solid #e2ddcb; border-radius: 12px; padding: 9px 14px; font-size: 14px; font-family: inherit; }
 .admin-campo input:focus, .admin-campo textarea:focus { outline: none; border-color: #43a5d0; }
+/* Página 404 (NotFoundPage) */
+.nf-pantalla { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: #f4f1ea; }
+.nf-tarjeta { background: #fff; border-radius: 20px; padding: 48px 40px; max-width: 460px; text-align: center; box-shadow: 0 8px 28px rgba(0, 51, 112, 0.08); }
+.nf-codigo { display: block; font-size: 64px; font-weight: 700; color: #43a5d0; line-height: 1; letter-spacing: 2px; }
+.nf-titulo { font-size: 22px; font-weight: 600; color: #25262b; margin: 16px 0 8px; }
+.nf-texto { font-size: 15px; color: #6b6b6b; line-height: 1.5; margin-bottom: 28px; }
+.nf-boton { display: inline-block; text-decoration: none; }

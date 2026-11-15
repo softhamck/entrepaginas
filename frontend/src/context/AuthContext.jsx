@@ -1,20 +1,33 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 const AuthContext = createContext(null);
 
-// Lee el rol y el id del JWT sin librerías externas.
+// Lee el rol, el id y la expiración (exp) del JWT sin librerías externas.
 function datosDelToken(token) {
   if (!token) return null;
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    return { id: payload.id, rol: payload.rol };
+    return { id: payload.id, rol: payload.rol, exp: payload.exp };
   } catch {
     return null;
   }
 }
 
+// true si el token ya venció (exp viene en segundos).
+function expirado(datos) {
+  return Boolean(datos?.exp) && datos.exp * 1000 <= Date.now();
+}
+
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem('token'));
+  // Al cargar: si el token guardado ya venció, no iniciamos sesión con él.
+  const [token, setToken] = useState(() => {
+    const guardado = localStorage.getItem('token');
+    if (expirado(datosDelToken(guardado))) {
+      localStorage.removeItem('token');
+      return null;
+    }
+    return guardado;
+  });
 
   const login = (newToken) => {
     localStorage.setItem('token', newToken);
@@ -27,6 +40,15 @@ export function AuthProvider({ children }) {
   };
 
   const usuario = datosDelToken(token);
+
+  // Cierra la sesión automáticamente en el momento exacto en que vence el JWT,
+  // así la sesión no queda abierta indefinidamente (JWT de 2h en el backend).
+  useEffect(() => {
+    if (!usuario?.exp) return;
+    const restanteMs = usuario.exp * 1000 - Date.now();
+    const id = setTimeout(logout, Math.max(restanteMs, 0));
+    return () => clearTimeout(id);
+  }, [usuario?.exp]);
 
   return (
     <AuthContext.Provider

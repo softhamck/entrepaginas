@@ -22,6 +22,14 @@ function moneda(valor) {
   return valor.toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
 }
 
+// Solo se puede renovar faltando 5 días o menos para el vencimiento
+// (debe coincidir con RENOVAR_VENTANA_DIAS del backend).
+const VENTANA_RENOVACION = 5;
+
+function puedeRenovar(p) {
+  return p.diasRestantes !== null && p.diasRestantes >= 0 && p.diasRestantes <= VENTANA_RENOVACION;
+}
+
 function EstadoPrestamo({ estado }) {
   const mapa = {
     ACTIVO: { clase: 'estado-ok', texto: 'Activo' },
@@ -64,7 +72,7 @@ export default function MisPrestamosPage() {
     setAviso('');
     setAvisoError('');
     renovarPrestamo(id)
-      .then(() => { setAviso('Préstamo renovado. Se extendió 14 días más.'); cargar(); })
+      .then(() => { setAviso('Préstamo renovado. Se extendió 5 días más.'); cargar(); })
       .catch((err) => setAvisoError(err.message))
       .finally(() => setRenovandoId(null));
   };
@@ -162,7 +170,10 @@ export default function MisPrestamosPage() {
                       className="boton-secundario"
                       style={{ padding: '6px 16px' }}
                       onClick={() => onRenovar(p.id)}
-                      disabled={renovandoId === p.id}
+                      disabled={renovandoId === p.id || !puedeRenovar(p)}
+                      title={puedeRenovar(p)
+                        ? 'Renovar este préstamo'
+                        : 'Podrás renovar cuando falten 5 días o menos para el vencimiento'}
                     >
                       {renovandoId === p.id ? 'Renovando…' : 'Renovar'}
                     </button>

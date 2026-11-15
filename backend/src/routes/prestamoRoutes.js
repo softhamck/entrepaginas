@@ -8,7 +8,7 @@ const { solicitar, devolver, renovar, listar } = require('../controllers/prestam
 router.get('/', authMiddleware, autorizarRol('ADMIN'), listar);
 
 // Solicitar un préstamo: cualquier usuario autenticado (HU-11).
-router.post('/', authMiddleware, solicitar);
+router.post('/', authMiddleware, autorizarRol('USUARIO'), solicitar);
 
 // Registrar la devolución: solo el administrador (HU-12).
 router.patch('/:id/devolver', authMiddleware, autorizarRol('ADMIN'), devolver);

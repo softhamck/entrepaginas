@@ -19,6 +19,10 @@ async function crearReserva({ usuarioId, libroId }) {
   if (await prestamoRepository.buscarEjemplarDisponiblePorLibro(libroId)) {
     throw new ReglaNegocioError('Este libro tiene ejemplares disponibles. Puedes solicitar el préstamo.');
   }
+  // No reservar un libro que el usuario ya tiene prestado (debe renovarlo).
+  if (await prestamoRepository.tienePrestamoActivoDeLibro(usuarioId, libroId)) {
+    throw new ReglaNegocioError('Ya tienes este libro prestado. Puedes renovarlo desde "Mis préstamos".');
+  }
   // No duplicar en la cola.
   if (await reservaRepository.reservaExistente(usuarioId, libroId)) {
     throw new ReglaNegocioError('Ya estás en la cola de espera de este libro.');

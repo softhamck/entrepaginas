@@ -14,7 +14,6 @@ export default function ColasEsperaPage() {
 
   const cargar = useCallback(() => {
     let activo = true;
-    setCargando(true);
     listarColas()
       .then((datos) => { if (activo) setColas(datos); })
       .catch(() => { if (activo) setError('No pudimos cargar las colas de espera.'); })

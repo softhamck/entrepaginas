@@ -94,7 +94,7 @@ export default function RegisterPage() {
           <ul className="auth-rules-list">
             <li>El correo debe ser único en el sistema.</li>
             <li>Hasta 3 préstamos simultáneos por usuario.</li>
-            <li>Préstamos de 14 días, renovables una vez.</li>
+            <li>Préstamos de 15 días, renovables una vez.</li>
           </ul>
         </div>
       </div>

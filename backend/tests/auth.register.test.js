@@ -1,3 +1,4 @@
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
 jest.mock('../src/repositories/usuarioRepository');
 const usuarioRepository = require('../src/repositories/usuarioRepository');
 const { registrarUsuario } = require('../src/services/authService');

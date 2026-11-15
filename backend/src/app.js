@@ -33,4 +33,16 @@ app.use('/api/recomendaciones', recomendacionRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
+// Traduce los errores de carga de archivos (Multer) a una respuesta JSON controlada.
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  if (err && err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(413).json({ mensaje: 'El archivo supera el tamaño máximo permitido (5 MB).' });
+  }
+  if (err && err.name === 'MulterError') {
+    return res.status(400).json({ mensaje: 'No se pudo procesar el archivo cargado.' });
+  }
+  return res.status(500).json({ mensaje: 'Ocurrió un error inesperado.' });
+});
+
 module.exports = app;

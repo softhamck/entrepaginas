@@ -67,7 +67,7 @@ export default function DetalleLibroPage() {
   const onSolicitar = () => {
     setSolicitando(true); setAviso(''); setAvisoError('');
     solicitarPrestamo(Number(id))
-      .then(() => { setAviso('Préstamo registrado. Tienes 14 días para devolverlo.'); cargar(); })
+      .then(() => { setAviso('Préstamo registrado. Tienes 15 días para devolverlo.'); cargar(); })
       .catch((err) => setAvisoError(err.message))
       .finally(() => setSolicitando(false));
   };

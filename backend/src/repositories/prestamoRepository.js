@@ -106,4 +106,5 @@ module.exports = {
   renovarPrestamo,
   listarPrestamos,
   buscarPrestamosPorUsuario,
+  tienePrestamoActivoDeLibro,
 };

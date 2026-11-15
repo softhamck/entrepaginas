@@ -46,7 +46,7 @@ export default function MiPerfilPage() {
           </p>
         </div>
         <label className="switch">
-          <input type="checkbox" checked={consiente} onChange={onToggle} disabled={guardando || cargando} />
+          <input type="checkbox" aria-label="Autorizar el uso de mi historial para recomendaciones" checked={consiente} onChange={onToggle} disabled={guardando || cargando} />
           <span className="switch-slider" />
         </label>
       </div>

@@ -1,6 +1,6 @@
 const { registrarUsuario, login: loginService } = require('../services/authService');
 
-const FORMATO_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const FORMATO_CORREO = /^[^\s@]+@[^\s@.]+\.[^\s@]+$/;
 
 async function register(req, res) {
   const { nombre, correo, telefono, contrasena } = req.body;

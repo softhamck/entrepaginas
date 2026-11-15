@@ -87,6 +87,13 @@ function listarPrestamos({ estado } = {}) {
   });
 }
 
+// ¿El usuario ya tiene un préstamo ACTIVO de este libro? (para no reservar lo propio, HU-18).
+function tienePrestamoActivoDeLibro(usuarioId, libroId) {
+  return prisma.prestamo.findFirst({
+    where: { usuarioId, estado: 'ACTIVO', ejemplar: { libroId } },
+  });
+}
+
 module.exports = {
   buscarLibroPorId,
   buscarEjemplarDisponiblePorLibro,

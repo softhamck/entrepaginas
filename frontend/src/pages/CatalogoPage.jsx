@@ -41,8 +41,8 @@ export default function CatalogoPage() {
     setCargando(true); setQAplicado('');
   };
 
-  const autores = [...new Set(todos.map((l) => l.autor).filter(Boolean))].sort();
-  const categorias = [...new Set(todos.map((l) => l.categoria).filter(Boolean))].sort();
+  const autores = [...new Set(todos.map((l) => l.autor).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const categorias = [...new Set(todos.map((l) => l.categoria).filter(Boolean))].sort((a, b) => a.localeCompare(b));
   const visibles = autor ? libros.filter((l) => l.autor === autor) : libros;
 
   return (

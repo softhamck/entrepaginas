@@ -68,14 +68,12 @@ async function importarInventario(filasCrudas, opciones = {}) {
     codigosVistos.add(codigo);
 
     const clave = `${titulo}||${autor}`;
-    let libroId = cacheLibros.get(clave);
-    let libroYaExistia = false;
+    let entrada = cacheLibros.get(clave);
 
-    if (libroId === undefined) {
+    if (entrada === undefined) {
       const existente = await libroRepository.buscarLibroPorTituloAutor(titulo, autor);
       if (existente) {
-        libroId = existente.id;
-        libroYaExistia = true;
+        entrada = { id: existente.id, yaExistia: true };
       } else {
         const creado = await libroRepository.crearLibro({
           titulo, autor,
@@ -83,11 +81,14 @@ async function importarInventario(filasCrudas, opciones = {}) {
           categoria: fila.categoria ? String(fila.categoria).trim() : null,
           descripcion: fila.descripcion ? String(fila.descripcion).trim() : null,
         });
-        libroId = creado.id;
+        entrada = { id: creado.id, yaExistia: false };
         reporte.librosNuevos += 1;
       }
-      cacheLibros.set(clave, libroId);
+      cacheLibros.set(clave, entrada);
     }
+
+    const libroId = entrada.id;
+    const libroYaExistia = entrada.yaExistia;
 
     if (libroYaExistia && modoLibroExistente === 'omitir') {
       reporte.omitidos.push({ fila: numeroFila, codigo, motivo: 'El libro ya existía y se conservó como estaba' });

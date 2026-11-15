@@ -35,7 +35,6 @@ export default function GestionPrestamosPage() {
 
   const cargar = useCallback(() => {
     let activo = true;
-    setCargando(true);
     listarPrestamos('ACTIVO')
       .then((datos) => { if (activo) setPrestamos(datos); })
       .catch(() => { if (activo) setError('No pudimos cargar los préstamos.'); })

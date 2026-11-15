@@ -50,7 +50,6 @@ export default function MisPrestamosPage() {
 
   const cargar = useCallback(() => {
     let activo = true;
-    setCargando(true);
     Promise.all([obtenerHistorial(usuario.id), misReservas()])
       .then(([hist, res]) => { if (activo) { setPrestamos(hist); setReservas(res); } })
       .catch(() => { if (activo) setError('No pudimos cargar tu actividad.'); })

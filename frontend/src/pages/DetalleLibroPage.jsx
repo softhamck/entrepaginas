@@ -39,7 +39,6 @@ export default function DetalleLibroPage() {
 
   const cargar = useCallback(() => {
     let activo = true;
-    setCargando(true);
     obtenerDetalle(id)
       .then((datos) => {
         if (!activo) return;

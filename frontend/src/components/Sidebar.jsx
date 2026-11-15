@@ -12,7 +12,7 @@ const NAV_ADMIN = [
   { label: 'Gestión de inventario', to: '/catalogo' },
   { label: 'Importar inventario', to: '/admin/importar' },
   { label: 'Gestión de préstamos', to: '/admin/prestamos' },
-  { label: 'Colas de espera', to: '/proximamente/colas' },
+  { label: 'Colas de espera', to: '/admin/colas' },
   { label: 'Usuarios y multas', to: '/admin/usuarios' },
 ];
 
@@ -45,4 +45,3 @@ export default function Sidebar({ abierto = false, cerrar = () => {} }) {
     </aside>
   );
 }
-

@@ -31,13 +31,13 @@ describe('Solicitar préstamo (HU-11) - POST /api/prestamos', () => {
   const pedir = () => request(app).post('/api/prestamos')
     .set('Authorization', `Bearer ${tokenUsuario}`).send({ libroId: 1 });
 
-  test('préstamo exitoso -> 201, vence en 14 días y toma un ejemplar', async () => {
+  test('préstamo exitoso -> 201, vence en 15 días y toma un ejemplar', async () => {
     const res = await pedir();
     expect(res.status).toBe(201);
     expect(res.body.estado).toBe('ACTIVO');
     const arg = prestamoRepository.crearPrestamo.mock.calls[0][0];
     const dias = Math.round((new Date(arg.fechaVencimiento) - Date.now()) / 86400000);
-    expect(dias).toBe(14);
+    expect(dias).toBe(15);
     expect(arg.ejemplarId).toBe(50);
   });
 
@@ -72,6 +72,13 @@ describe('Solicitar préstamo (HU-11) - POST /api/prestamos', () => {
     const res = await request(app).post('/api/prestamos')
       .set('Authorization', `Bearer ${tokenUsuario}`).send({});
     expect(res.status).toBe(400);
+  });
+
+  test('un administrador no puede solicitar préstamo -> 403', async () => {
+    const tokenAdmin = require('jsonwebtoken').sign({ id: 1, rol: 'ADMIN' }, 'test-secret', { expiresIn: '2h' });
+    const res = await request(app).post('/api/prestamos')
+      .set('Authorization', `Bearer ${tokenAdmin}`).send({ libroId: 1 });
+    expect(res.status).toBe(403);
   });
 
   test('sin sesión -> 401', async () => {

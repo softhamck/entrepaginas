@@ -13,6 +13,7 @@ jest.mock('../src/repositories/prestamoRepository', () => ({
   buscarLibroPorId: jest.fn(),
   tieneMultaPendiente: jest.fn(),
   buscarEjemplarDisponiblePorLibro: jest.fn(),
+  tienePrestamoActivoDeLibro: jest.fn(),
 }));
 
 const reservaRepository = require('../src/repositories/reservaRepository');
@@ -27,6 +28,7 @@ describe('Reservas / cola de espera (HU-18)', () => {
     prestamoRepository.buscarLibroPorId.mockResolvedValue({ id: 1, titulo: 'Rayuela' });
     prestamoRepository.tieneMultaPendiente.mockResolvedValue(null);
     prestamoRepository.buscarEjemplarDisponiblePorLibro.mockResolvedValue(null); // sin disponibilidad
+    prestamoRepository.tienePrestamoActivoDeLibro.mockResolvedValue(null);
     reservaRepository.reservaExistente.mockResolvedValue(null);
     reservaRepository.contarReservasDeLibro.mockResolvedValue(0);
     reservaRepository.crearReserva.mockImplementation(({ posicion }) => Promise.resolve({ id: 10, posicion }));
@@ -79,6 +81,19 @@ describe('Reservas / cola de espera (HU-18)', () => {
       const res = await request(app).post('/api/reservas')
         .set('Authorization', `Bearer ${tokenUsuario}`).send({});
       expect(res.status).toBe(400);
+    });
+
+    test('no se puede reservar un libro que ya tienes prestado -> 409', async () => {
+      prestamoRepository.tienePrestamoActivoDeLibro.mockResolvedValue({ id: 77 });
+      const res = await reservar();
+      expect(res.status).toBe(409);
+      expect(res.body.error).toMatch(/ya tienes este libro/i);
+    });
+
+    test('un administrador no puede reservar -> 403', async () => {
+      const tokenAdmin = require('jsonwebtoken').sign({ id: 1, rol: 'ADMIN' }, 'test-secret', { expiresIn: '2h' });
+      const res = await reservar(1, tokenAdmin);
+      expect(res.status).toBe(403);
     });
 
     test('sin sesión -> 401', async () => {

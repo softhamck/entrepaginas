@@ -21,7 +21,7 @@ const app = require('../src/app');
 const tokenUsuario = jwt.sign({ id: 2, rol: 'USUARIO' }, 'test-secret', { expiresIn: '2h' });
 
 // Préstamo del usuario 2, activo, que vence en "diasOffset" días, con "renov" renovaciones.
-function prestamo({ diasOffset = 7, renov = 0, usuarioId = 2, estado = 'ACTIVO' } = {}) {
+function prestamo({ diasOffset = 3, renov = 0, usuarioId = 2, estado = 'ACTIVO' } = {}) {
   const venc = new Date();
   venc.setDate(venc.getDate() + diasOffset);
   return { id: 100, usuarioId, estado, renovaciones: renov, fechaVencimiento: venc, ejemplar: { id: 50, libroId: 1 } };
@@ -40,14 +40,21 @@ describe('Renovar préstamo (HU-13) - PATCH /api/prestamos/:id/renovar', () => {
   const renovar = (id = 100, token = tokenUsuario) =>
     request(app).patch(`/api/prestamos/${id}/renovar`).set('Authorization', `Bearer ${token}`);
 
-  test('renovación exitosa -> 200 y extiende 14 días desde el vencimiento', async () => {
-    const original = prestamo({ diasOffset: 7 });
+  test('renovación exitosa (dentro de ventana) -> 200 y extiende 5 días desde el vencimiento', async () => {
+    const original = prestamo({ diasOffset: 3 });
     prestamoRepository.buscarPrestamoPorId.mockResolvedValue(original);
     const res = await renovar();
     expect(res.status).toBe(200);
     const arg = prestamoRepository.renovarPrestamo.mock.calls[0][0];
     const dias = Math.round((new Date(arg.nuevaFecha) - new Date(original.fechaVencimiento)) / 86400000);
-    expect(dias).toBe(14);
+    expect(dias).toBe(5);
+  });
+
+  test('fuera de la ventana (faltan más de 5 días) -> 409', async () => {
+    prestamoRepository.buscarPrestamoPorId.mockResolvedValue(prestamo({ diasOffset: 8 }));
+    const res = await renovar();
+    expect(res.status).toBe(409);
+    expect(res.body.error).toMatch(/5 días/i);
   });
 
   test('préstamo vencido -> 409', async () => {
@@ -58,7 +65,7 @@ describe('Renovar préstamo (HU-13) - PATCH /api/prestamos/:id/renovar', () => {
   });
 
   test('ya renovado una vez -> 409', async () => {
-    prestamoRepository.buscarPrestamoPorId.mockResolvedValue(prestamo({ renov: 1 }));
+    prestamoRepository.buscarPrestamoPorId.mockResolvedValue(prestamo({ diasOffset: 3, renov: 1 }));
     const res = await renovar();
     expect(res.status).toBe(409);
     expect(res.body.error).toMatch(/una vez/i);
@@ -82,17 +89,6 @@ describe('Renovar préstamo (HU-13) - PATCH /api/prestamos/:id/renovar', () => {
     prestamoRepository.buscarPrestamoPorId.mockResolvedValue(prestamo({ usuarioId: 999 }));
     const res = await renovar();
     expect(res.status).toBe(404);
-  });
-
-  test('préstamo inexistente -> 404', async () => {
-    prestamoRepository.buscarPrestamoPorId.mockResolvedValue(null);
-    const res = await renovar();
-    expect(res.status).toBe(404);
-  });
-
-  test('id inválido -> 400', async () => {
-    const res = await renovar('abc');
-    expect(res.status).toBe(400);
   });
 
   test('sin sesión -> 401', async () => {

@@ -6,7 +6,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 const autorizarRol = require('../middlewares/rolMiddleware');
 const { importar, listar, detalle, actualizar, ejemplares } = require('../controllers/libroController');
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // máx. 5 MB
 
 // Consultar el catálogo: cualquier usuario autenticado (HU-08).
 router.get('/', authMiddleware, listar);

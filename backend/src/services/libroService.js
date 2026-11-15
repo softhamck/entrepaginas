@@ -32,7 +32,7 @@ function mapearFila(filaCruda) {
 function parsearCosto(valor) {
   if (valor === undefined || valor === null || valor === '') return null;
   const soloDigitos = String(valor).replace(/[^\d]/g, '');
-  return soloDigitos ? parseInt(soloDigitos, 10) : null;
+  return soloDigitos ? Number.parseInt(soloDigitos, 10) : null;
 }
 
 /**

@@ -16,7 +16,14 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
-      {menuAbierto && <div className="overlay" onClick={() => setMenuAbierto(false)} />}
+      {menuAbierto && (
+        <button
+          type="button"
+          className="overlay"
+          aria-label="Cerrar menú"
+          onClick={() => setMenuAbierto(false)}
+        />
+      )}
     </div>
   );
 }

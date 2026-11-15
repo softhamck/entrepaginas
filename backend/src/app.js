@@ -13,7 +13,12 @@ const ejemplarRoutes = require('./routes/ejemplarRoutes');
 const recomendacionRoutes = require('./routes/recomendacionRoutes');
 
 const app = express();
-app.use(cors());
+app.disable('x-powered-by');
+
+const ORIGENES_PERMITIDOS = (process.env.CORS_ORIGINS || 'https://entrepaginas-phi.vercel.app,http://localhost:5173')
+  .split(',')
+  .map((o) => o.trim());
+app.use(cors({ origin: ORIGENES_PERMITIDOS }));
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);

@@ -8,7 +8,7 @@ const { crear, listar, colas } = require('../controllers/reservaController');
 router.get('/colas', authMiddleware, autorizarRol('ADMIN'), colas);
 
 // Unirse a la cola de espera y ver las propias reservas (HU-18).
-router.post('/', authMiddleware, crear);
+router.post('/', authMiddleware, autorizarRol('USUARIO'), crear);
 router.get('/', authMiddleware, listar);
 
 module.exports = router;
